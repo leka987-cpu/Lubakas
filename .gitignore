@@ -1,0 +1,4 @@
+ios/*.xcodeproj
+.DS_Store
+*.jks
+keystore.properties

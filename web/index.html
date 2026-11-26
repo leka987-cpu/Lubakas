@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="et">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="fonts.css">
+<title>Lubakas</title>
+<style>html{-webkit-text-size-adjust:100%}*{-webkit-tap-highlight-color:transparent}body{margin:0}img{max-width:100%}[hidden]{display:none!important}@media (hover:none){.fb .note{visibility:hidden}}</style>
+</head>
+<body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: same graph-paper notebook as the rest of the series; the question card is the raised object. */
+:root{
+  --paper:#EDF0F5; --grid:#DCE2EC; --card:#FFFFFF; --ink:#18203A; --muted:#5B6580;
+  --accent:#E39B12; --accent-soft:#FBEFD6; --ok:#1F8A5B; --ok-soft:#DDF2E7; --bad:#C8412D; --bad-soft:#F8E1DC;
+  --line:#C9D1DE; --road:#5E6678; --roadline:#F4F6FA; --verge:#CFE3C6;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#10131C; --grid:#1A2030; --card:#181D2A; --ink:#E5E9F3; --muted:#96A0B8;
+  --accent:#F2B13A; --accent-soft:#3A2E14; --ok:#3DBE85; --ok-soft:#163327; --bad:#EF6A55; --bad-soft:#3A1E1A;
+  --line:#2C3448; --road:#3A4152; --roadline:#C9CFDB; --verge:#22331F; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#10131C; --grid:#1A2030; --card:#181D2A; --ink:#E5E9F3; --muted:#96A0B8;
+  --accent:#F2B13A; --accent-soft:#3A2E14; --ok:#3DBE85; --ok-soft:#163327; --bad:#EF6A55; --bad-soft:#3A1E1A;
+  --line:#2C3448; --road:#3A4152; --roadline:#C9CFDB; --verge:#22331F; color-scheme:dark }
+*{box-sizing:border-box}
+html,body{min-height:100%;margin:0}
+body{background-color:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+.wrap{max-width:780px;margin:0 auto;padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;line-height:1.1}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.card{background:var(--card);border:1.5px solid var(--ink);border-radius:6px;box-shadow:5px 5px 0 var(--ink);padding:22px}
+.btn{background:var(--accent);color:#18203A;border:1.5px solid var(--ink);border-radius:6px;padding:12px 20px;font-weight:700;
+  box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.ghost{background:var(--card);color:var(--ink)}
+.btn:disabled{opacity:.45;pointer-events:none}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.hidden{display:none!important}
+
+/* Start */
+.hero{display:flex;flex-direction:column;gap:12px}
+.hero h1{font-size:clamp(44px,10vw,80px);font-weight:800;letter-spacing:-.03em}
+.hero h1 span{color:var(--accent)}
+.hero .lead{font-size:18px;max-width:60ch}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.mode{text-align:left;background:var(--card);border:1.5px solid var(--ink);border-radius:6px;padding:16px;display:flex;gap:12px;align-items:flex-start;
+  box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.mode:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.mode svg{width:44px;height:44px;flex:none}
+.mode b{font-family:var(--f-display);font-size:18px;display:block}
+.mode small{color:var(--muted);font-size:14px;line-height:1.35;display:block;margin-top:2px}
+.mode.primary{background:var(--accent-soft)}
+.topics{display:flex;flex-direction:column;gap:6px}
+.topic{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;text-align:left;background:transparent;border:1.5px dashed var(--line);border-radius:6px;padding:10px 12px}
+.topic:hover{border-color:var(--ink);border-style:solid}
+.topic b{font-weight:700}
+.topic .pct{font-family:var(--f-mono);font-size:14px;color:var(--muted)}
+.bar{grid-column:1/-1;height:6px;border-radius:3px;background:var(--grid);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{border:1.5px solid var(--line);border-radius:6px;padding:10px 12px;min-width:0}
+.stat .v{font-family:var(--f-mono);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+.stat .k{font-size:13px;color:var(--muted)}
+.note{font-size:13px;color:var(--muted)}
+.note a{color:inherit}
+
+/* Question */
+.hud{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.progress{height:8px;border:1.5px solid var(--ink);border-radius:4px;overflow:hidden;background:var(--card)}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.q{display:flex;flex-direction:column;gap:16px}
+.q h2{font-size:22px;font-weight:800;line-height:1.25}
+.fig{display:flex;justify-content:center}
+.fig svg{width:min(100%,260px);height:auto}
+.fig.sign svg{width:140px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.quip{font-style:italic;color:var(--muted)}
+.streak{display:flex;gap:12px;align-items:center;border:1.5px dashed var(--ink);border-radius:6px;padding:10px 14px;background:var(--card)}
+.streak b{font-size:22px}.streak small{display:block;color:var(--muted);font-size:13px}
+.awards{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.aw{border:1.5px solid var(--line);border-radius:6px;padding:8px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;opacity:.6}
+.aw.on{opacity:1;border-color:var(--ink);background:var(--accent-soft)}
+.aw svg{width:34px;height:34px}.aw b{font-size:13px;line-height:1.2}.aw small{font-size:11px;color:var(--muted);line-height:1.25}
+.titleline{display:flex;flex-direction:column;gap:2px}.titleline b{font-family:var(--f-display);font-size:22px}
+.vs{font-weight:700}
+.share{display:flex;flex-direction:column;gap:8px;border-top:1.5px dashed var(--line);padding-top:12px}
+.share textarea,.codein{font:inherit;color:var(--ink);background:var(--paper);border:1.5px solid var(--ink);border-radius:6px;padding:10px;width:100%;resize:vertical}
+.codein{font-family:var(--f-mono);font-size:20px;letter-spacing:.06em;text-transform:uppercase}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--card);padding:10px 16px;border-radius:6px;font-weight:700;transition:all .3s;z-index:20;max-width:calc(100% - 32px)}
+.toast.in{transform:translate(-50%,0);opacity:1}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+.mode svg{width:44px;height:44px;flex:none}
+.langs{display:inline-flex;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden}
+.lng{background:var(--card);border:0;padding:4px 10px;font-family:var(--f-mono);font-size:12px;font-weight:700;letter-spacing:.08em}
+.lng.on{background:var(--ink);color:var(--card)}
+.opts.grid{display:grid;grid-template-columns:1fr 1fr}
+.osign svg{width:72px;height:72px;display:block}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--card);border:1.5px solid var(--ink);border-radius:6px;padding:12px 14px;
+  box-shadow:2px 2px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.opt:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+.opt .l{font-family:var(--f-mono);font-weight:700;color:var(--muted);min-width:1.2em}
+.opt.sel{background:var(--accent-soft)}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.opt.locked{pointer-events:none}
+.explain{border-left:4px solid var(--ok);background:var(--ok-soft);padding:12px 14px;border-radius:0 6px 6px 0;display:flex;flex-direction:column;gap:6px}
+.explain.bad{border-color:var(--bad);background:var(--bad-soft)}
+.explain b{font-family:var(--f-display);font-size:18px}
+.src{font-size:13px;color:var(--muted)}
+.src::before{content:"§ ";font-family:var(--f-mono);font-weight:700}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:3px;padding:1px 6px;color:var(--muted)}
+.tag.safe{border-color:var(--bad);color:var(--bad)}
+.dots{display:flex;flex-wrap:wrap;gap:4px}
+.dot{width:26px;height:26px;border:1.5px solid var(--line);border-radius:4px;background:var(--card);font-family:var(--f-mono);font-size:11px;padding:0;display:grid;place-items:center}
+.dot.ans{background:var(--accent-soft);border-color:var(--ink)}
+.dot.cur{outline:2px solid var(--accent);outline-offset:1px}
+.dot.r{background:var(--ok-soft);border-color:var(--ok)}
+.dot.w{background:var(--bad-soft);border-color:var(--bad)}
+.clock{font-family:var(--f-mono);font-weight:700;font-size:20px}
+.clock.low{color:var(--bad)}
+
+/* Results */
+.big{font-family:var(--f-display);font-weight:800;font-size:clamp(40px,9vw,64px);line-height:1}
+.verdict{display:inline-block;padding:4px 12px;border:1.5px solid var(--ink);border-radius:4px;font-family:var(--f-display);font-weight:800;font-size:20px}
+.verdict.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.verdict.bad{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+.review{display:flex;flex-direction:column;gap:12px}
+.rv{border:1.5px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.rv .a{font-size:14px}
+
+/* Atlas */
+.atlas{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.sg{border:1.5px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px;align-items:flex-start;background:var(--card)}
+.sg svg{width:72px;height:72px}
+.sg b{font-family:var(--f-display);font-size:16px;line-height:1.15}
+.sg small{font-size:13px;color:var(--muted);line-height:1.35}
+.grp{font-family:var(--f-display);font-size:20px;margin-top:8px}
+@media (max-width:480px){.card{padding:16px}.stats{grid-template-columns:1fr 1fr 1fr}.stat .v{font-size:18px}}
+</style>
+<main class="wrap" id="app"></main>
+<script>
+/* ============ SIGNS (original drawings, viewBox 0 0 100 100) ============ */
+const RED="#D0202A", BLUE="#1F5FBF", YEL="#F2C230", BLK="#18203A";
+const W=s=>`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${s}</svg>`;
+const warn=i=>`<path d="M50 7 L95 88 H5 Z" fill="#fff" stroke="${RED}" stroke-width="8" stroke-linejoin="round"/>${i}`;
+const ring=i=>`<circle cx="50" cy="50" r="44" fill="#fff" stroke="${RED}" stroke-width="10"/>${i}`;
+const blueC=i=>`<circle cx="50" cy="50" r="46" fill="${BLUE}" stroke="#fff" stroke-width="2"/>${i}`;
+const blueS=i=>`<rect x="5" y="5" width="90" height="90" rx="8" fill="${BLUE}" stroke="#fff" stroke-width="2"/>${i}`;
+const person=(x,y,s=1,c=BLK)=>`<g transform="translate(${x} ${y}) scale(${s})" stroke="${c}" stroke-width="5" stroke-linecap="round" fill="none"><circle cx="0" cy="-22" r="5" fill="${c}" stroke="none"/><path d="M0 -15 L-2 2 M-2 2 L-9 16 M-2 2 L6 16 M0 -12 L-9 -3 M0 -12 L9 -5"/></g>`;
+const car=(x,y,c,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})"><path d="M-14 4 V-4 Q-12 -9 -8 -10 L-5 -16 H5 L8 -10 Q12 -9 14 -4 V4 Z" fill="${c}"/><circle cx="-8" cy="5" r="4" fill="${c}"/><circle cx="8" cy="5" r="4" fill="${c}"/><rect x="-4" y="-14" width="8" height="4" fill="#fff"/></g>`;
+function arcArrow(cx,cy,r,a0,a1,c="#fff",w=7){ // angles in degrees, counterclockwise on screen when a1<a0
+  const p=a=>[cx+r*Math.cos(a*Math.PI/180),cy+r*Math.sin(a*Math.PI/180)];
+  const [x0,y0]=p(a0),[x1,y1]=p(a1);
+  const sweep=a1>a0?1:0;
+  const dir=a1>a0?1:-1, t=(a1+dir*90)*Math.PI/180, n=a1*Math.PI/180;
+  const tip=[x1+9*Math.cos(t),y1+9*Math.sin(t)], b1=[x1+8*Math.cos(n),y1+8*Math.sin(n)], b2=[x1-8*Math.cos(n),y1-8*Math.sin(n)];
+  return `<path d="M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 0 ${sweep} ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="${c}" stroke-width="${w}"/><path d="M${tip[0].toFixed(1)} ${tip[1].toFixed(1)} L${b1[0].toFixed(1)} ${b1[1].toFixed(1)} L${b2[0].toFixed(1)} ${b2[1].toFixed(1)}Z" fill="${c}"/>`;
+}
+const SIGNS={
+  anna:{g:"Eesõigusmärgid",n:"Anna teed",m:"Pead andma teed ristuval teel liiklejatele",
+    e:"Kolmnurk tipuga alla tähendab, et ristuval teel liiklejatel on eesõigus. Peatuma ei pea, kui teed andmata saab ohutult sõita.",
+    svg:`<path d="M6 10 H94 L50 92 Z" fill="#fff" stroke="${RED}" stroke-width="8" stroke-linejoin="round"/>`},
+  stop:{g:"Eesõigusmärgid",n:"STOP",m:"Pead peatuma ja andma teed ristuval teel liiklejatele",
+    e:"STOP-märgi juures tuleb alati peatuda stoppjoone ees (selle puudumisel ristuva sõidutee serva ees), ka siis, kui teel kedagi ei paista, ja seejärel anda teed.",
+    svg:`<polygon points="31,4 69,4 96,31 96,69 69,96 31,96 4,69 4,31" fill="${RED}" stroke="#fff" stroke-width="3"/><text x="50" y="60" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="27" fill="#fff">STOP</text>`},
+  peatee:{g:"Eesõigusmärgid",n:"Peatee",m:"Sõidad peateel: ristmikel on sul eesõigus kõrvalteelt tulijate ees",
+    e:"Kollane romb valge äärisega tähistab peateed. Kõrvalteel liiklejad peavad sulle teed andma.",
+    svg:`<rect x="20" y="20" width="60" height="60" transform="rotate(45 50 50)" fill="#fff" stroke="#8A93A6" stroke-width="2"/><rect x="31" y="31" width="38" height="38" transform="rotate(45 50 50)" fill="${YEL}"/>`},
+  peateelopp:{g:"Eesõigusmärgid",n:"Peatee lõpp",m:"Peatee lõpeb: edasi ei ole sul enam peatee eesõigust",
+    e:"Läbikriipsutatud romb tähendab, et peatee lõpeb. Järgmisel ristmikul juhindud teistest märkidest või parema käe reeglist.",
+    svg:`<rect x="20" y="20" width="60" height="60" transform="rotate(45 50 50)" fill="#fff" stroke="#8A93A6" stroke-width="2"/><rect x="31" y="31" width="38" height="38" transform="rotate(45 50 50)" fill="${YEL}"/><g stroke="${BLK}" stroke-width="2.5"><path d="M26 66 L66 26 M30 70 L70 30 M34 74 L74 34"/></g>`},
+  sissesoit:{g:"Keelumärgid",n:"Sissesõidukeeld",m:"Sellest suunast on sissesõit kõigile sõidukitele keelatud",
+    e:"Punane ring valge rõhtribaga keelab sõidukitel siia sisse sõita (näiteks ühesuunalise tee vastassuunast).",
+    svg:`<circle cx="50" cy="50" r="46" fill="${RED}" stroke="#fff" stroke-width="2"/><rect x="18" y="41" width="64" height="18" fill="#fff"/>`},
+  liikluskeeld:{g:"Keelumärgid",n:"Liikluskeeld",m:"Liiklemine kõigi sõidukitega on keelatud mõlemas suunas",
+    e:"Tühi valge ring punase äärisega keelab kõigi sõidukite liikluse.",
+    svg:ring("")},
+  peatumiskeeld:{g:"Keelumärgid",n:"Peatumise keeld",m:"Peatuda ja parkida on keelatud",
+    e:"Sinine ring punase ääre ja punase ristiga keelab nii peatumise kui ka parkimise märgiga teepoolel.",
+    svg:`<clipPath id="cpx"><circle cx="50" cy="50" r="40"/></clipPath><circle cx="50" cy="50" r="44" fill="${BLUE}" stroke="${RED}" stroke-width="10"/><g clip-path="url(#cpx)" stroke="${RED}" stroke-width="9"><path d="M18 18 L82 82 M82 18 L18 82"/></g>`},
+  parkimiskeeld:{g:"Keelumärgid",n:"Parkimise keeld",m:"Parkida on keelatud, lühiajaline peatumine on lubatud",
+    e:"Sinine ring punase ääre ja ühe kaldkriipsuga keelab parkimise, kuid peatuda (näiteks reisija maha panemiseks) tohib.",
+    svg:`<clipPath id="cpp"><circle cx="50" cy="50" r="40"/></clipPath><circle cx="50" cy="50" r="44" fill="${BLUE}" stroke="${RED}" stroke-width="10"/><g clip-path="url(#cpp)" stroke="${RED}" stroke-width="9"><path d="M18 18 L82 82"/></g>`},
+  kiirus50:{g:"Keelumärgid",n:"Suurim kiirus",m:"Suurim lubatud sõidukiirus on 50 km/h",
+    e:"Number punases ringis näitab suurimat lubatud kiirust. See on ülempiir, mitte soovitus: kiirus tuleb valida vastavalt oludele.",
+    svg:ring(`<text x="50" y="64" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="40" fill="${BLK}">50</text>`)},
+  moodasoit:{g:"Keelumärgid",n:"Möödasõidukeeld",m:"Mootorsõidukitest möödasõit on keelatud",
+    e:"Punane ja must auto punases ringis keelavad möödasõidu märgi mõjualas.",
+    svg:ring(car(34,54,RED,1.05)+car(66,54,BLK,1.05))},
+  otse:{g:"Kohustusmärgid",n:"Kohustuslik sõidusuund",m:"Sõita tohib ainult otse",
+    e:"Sinine ümmargune märk valge noolega kohustab sõitma noole suunas.",
+    svg:blueC(`<path d="M50 16 L72 42 H58 V84 H42 V42 H28 Z" fill="#fff"/>`)},
+  ringliiklus:{g:"Kohustusmärgid",n:"Ringliiklus",m:"Ristmikul liigutakse ringikujuliselt noolte suunas",
+    e:"Kolm ringis olevat noolt tähistavad ringristmikku. Ringil sõidetakse vastupäeva, nagu nooled näitavad.",
+    svg:blueC(arcArrow(50,50,23,-60,-150)+arcArrow(50,50,23,60,-30)+arcArrow(50,50,23,180,90))},
+  jalgrattatee:{g:"Kohustusmärgid",n:"Jalgrattatee",m:"Tee on ette nähtud jalgratastele",
+    e:"Sinine ring valge jalgrattaga tähistab jalgrattateed. Mootorsõidukiga sellel sõita ei tohi.",
+    svg:blueC(`<g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><circle cx="30" cy="60" r="13"/><circle cx="70" cy="60" r="13"/><path d="M30 60 L44 38 H64 L70 60 M44 38 L52 60 L64 38 M40 32 H50 M62 32 L66 30"/></g>`)},
+  yhesuunaline:{g:"Teavitusmärgid",n:"Ühesuunaline tee",m:"Tee, kus liiklus toimub ainult ühes suunas",
+    e:"Sinine ristkülik ülespoole näitava noolega tähistab ühesuunalist teed. Vastassuunas sõita ei tohi.",
+    svg:blueS(`<path d="M50 14 L74 42 H59 V86 H41 V42 H26 Z" fill="#fff"/>`)},
+  ylekaigurada:{g:"Teavitusmärgid",n:"Ülekäigurada",m:"Siin on ülekäigurada: jalakäijale tuleb teed anda",
+    e:"Sinine ruut valge kolmnurga ja jalakäijaga tähistab ülekäigurada. Juht on kohustatud andma teed jalakäijale, kes on rajal või sinna astumas.",
+    svg:blueS(`<path d="M50 12 L90 84 H10 Z" fill="#fff"/><g fill="${BLK}"><rect x="22" y="74" width="10" height="5"/><rect x="38" y="74" width="10" height="5"/><rect x="54" y="74" width="10" height="5"/><rect x="70" y="74" width="10" height="5"/></g>${person(50,66,.9)}`)},
+  oueala:{g:"Teavitusmärgid",n:"Õueala",m:"Õueala algab: suurim kiirus 20 km/h, jalakäijad tohivad kasutada kogu tee laiust",
+    e:"Õueala on ala, kus jalakäijad ja sõidukid liiklevad koos. Suurim lubatud kiirus on 20 km/h, jalakäija vahetus läheduses tuleb sõita jalakäija kiirusega.",
+    svg:blueS(`<path d="M16 46 L32 32 L48 46 V66 H16 Z" fill="#fff"/><rect x="28" y="54" width="8" height="12" fill="${BLUE}"/>${person(66,70,.75,"#fff")}<circle cx="80" cy="72" r="5" fill="#fff"/><rect x="12" y="80" width="76" height="4" fill="#fff"/>`)},
+  ouealalopp:{g:"Teavitusmärgid",n:"Õueala lõpp",m:"Õueala lõpeb: edasi kehtivad tavalised liiklusreeglid",
+    e:"Punase kaldjoonega õueala märk tähistab õueala lõppu. Õuealalt väljuja peab andma teed teistele liiklejatele.",
+    svg:blueS(`<path d="M16 46 L32 32 L48 46 V66 H16 Z" fill="#fff"/><rect x="28" y="54" width="8" height="12" fill="${BLUE}"/>${person(66,70,.75,"#fff")}<circle cx="80" cy="72" r="5" fill="#fff"/><rect x="12" y="80" width="76" height="4" fill="#fff"/><path d="M10 90 L90 10" stroke="${RED}" stroke-width="7"/>`)},
+  parkla:{g:"Teavitusmärgid",n:"Parkla",m:"Parkimiseks ettenähtud koht",
+    e:"Sinine ruut valge P-tähega tähistab parklat.",
+    svg:blueS(`<text x="50" y="74" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="66" fill="#fff">P</text>`)},
+  kurv:{g:"Hoiatusmärgid",n:"Ohtlik kurv",m:"Ees on ohtlik kurv paremale",
+    e:"Hoiatusmärgid on punase äärisega kolmnurgad. See hoiatab järsu kurvi eest: vähenda kiirust enne kurvi, mitte kurvis.",
+    svg:warn(`<path d="M42 80 V60 Q42 48 54 44 L58 42" fill="none" stroke="${BLK}" stroke-width="7"/><path d="M52 34 L66 39 L56 50 Z" fill="${BLK}"/>`)},
+  lapsed:{g:"Hoiatusmärgid",n:"Lapsed",m:"Ees on koht, kus teele võib ootamatult tulla lapsi",
+    e:"Märk hoiatab laste eest (kool, lasteaed, mänguväljak). Ole eriti tähelepanelik ja valmis peatuma.",
+    svg:warn(person(42,74,.9)+person(60,77,.65))},
+  metsloomad:{g:"Hoiatusmärgid",n:"Metsloomad",m:"Teele võivad tulla metsloomad",
+    e:"Märk hoiatab metsloomade (näiteks põtrade) eest. Eriti hämaras ole valmis pidurdama.",
+    svg:warn(`<g fill="${BLK}"><ellipse cx="50" cy="62" rx="16" ry="8"/><rect x="38" y="64" width="4" height="16"/><rect x="45" y="65" width="4" height="15"/><rect x="54" y="65" width="4" height="15"/><rect x="61" y="64" width="4" height="16"/><path d="M62 58 L70 48 L76 52 L74 56 L68 58 L66 64 Z"/><path d="M68 48 L62 40 M70 47 L66 38 M72 48 L76 40" stroke="${BLK}" stroke-width="3"/></g>`)},
+  teetood:{g:"Hoiatusmärgid",n:"Teetööd",m:"Ees on teetööd",
+    e:"Märk hoiatab teetööde eest. Seal võib olla töötajaid, masinaid ja kitsendusi, sõida ettevaatlikult.",
+    svg:warn(`${person(46,74,.9)}<path d="M54 64 L66 78" stroke="${BLK}" stroke-width="4"/><path d="M58 80 Q68 66 78 80 Z" fill="${BLK}"/>`)},
+  raudtee:{g:"Hoiatusmärgid",n:"Raudteeülesõidukoht tõkkepuuta",m:"Ees on raudteeülesõidukoht, kus tõkkepuud pole",
+    e:"Märk hoiatab tõkkepuuta raudteeülesõidukoha eest. Enne rööpaid veendu, et rongi ei tule.",
+    svg:warn(`<g fill="${BLK}"><rect x="28" y="56" width="40" height="16"/><rect x="56" y="46" width="12" height="12"/><rect x="34" y="48" width="6" height="10"/><circle cx="36" cy="76" r="5"/><circle cx="50" cy="76" r="5"/><circle cx="64" cy="76" r="5"/><path d="M68 70 L76 76 H68 Z"/></g>`)},
+  libe:{g:"Hoiatusmärgid",n:"Libe tee",m:"Ees on libe teelõik",
+    e:"Märk hoiatab libeda tee eest. Vähenda kiirust, suurenda pikivahet ja väldi järske liigutusi.",
+    svg:warn(`${car(50,52,BLK,1.1)}<path d="M38 64 q-6 6 0 10 q6 4 0 8 M62 64 q6 6 0 10 q-6 4 0 8" fill="none" stroke="${BLK}" stroke-width="3"/>`)},
+  kahesuunaline:{g:"Hoiatusmärgid",n:"Kahesuunaline liiklus",m:"Ees algab kahesuunalise liiklusega teelõik",
+    e:"Kaks vastassuunalist noolt hoiatavad, et ühesuunalise liikluse järel algab kahesuunaline liiklus.",
+    svg:warn(`<path d="M40 82 V48 M34 54 L40 44 L46 54" fill="none" stroke="${BLK}" stroke-width="5"/><path d="M60 42 V76 M54 70 L60 80 L66 70" fill="none" stroke="${BLK}" stroke-width="5"/>`)},
+  foorhoiatus:{g:"Hoiatusmärgid",n:"Valgusfoor",m:"Ees on valgusfooriga reguleeritud koht",
+    e:"Märk hoiatab, et ees on foor, mida ei pruugi kaugelt näha.",
+    svg:warn(`<rect x="41" y="38" width="18" height="44" rx="3" fill="${BLK}"/><circle cx="50" cy="47" r="5" fill="#E5484D"/><circle cx="50" cy="60" r="5" fill="#F2C230"/><circle cx="50" cy="73" r="5" fill="#2FA35B"/>`)},
+  ylekaighoiatus:{g:"Hoiatusmärgid",n:"Ülekäigurada (hoiatus)",m:"Lähened ülekäigurajale",
+    e:"Hoiatusmärk teatab ette, et läheneb ülekäigurada. Ole valmis jalakäijale teed andma.",
+    svg:warn(`${person(50,70,.9)}<g fill="${BLK}"><rect x="26" y="78" width="8" height="4"/><rect x="40" y="78" width="8" height="4"/><rect x="54" y="78" width="8" height="4"/><rect x="68" y="78" width="8" height="4"/></g>`)},
+};
+const signSvg=id=>W(SIGNS[id].svg);
+
+/* ============ INTERSECTION DIAGRAMS ============ */
+/* 240x240 crossroads, right-hand traffic. Cars are drawn for the "from south" case and rotated.
+   dir: S=0, W=90, N=180, E=270 (degrees clockwise). turn: s(traight), l(eft), r(ight). */
+const ROT={S:0,W:90,N:180,E:270};
+function rotPt(x,y,deg){const a=deg*Math.PI/180,cx=120,cy=120;return [cx+(x-cx)*Math.cos(a)-(y-cy)*Math.sin(a),cy+(x-cx)*Math.sin(a)+(y-cy)*Math.cos(a)]}
+function crossSvg(o){
+  const roads=o.roads||"NSWE";
+  let s=`<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ristmiku skeem">`;
+  s+=`<rect width="240" height="240" fill="var(--verge)"/>`;
+  if(roads.includes("N")||roads.includes("S")) s+=`<rect x="80" y="${roads.includes("N")?0:80}" width="80" height="${(roads.includes("N")?80:0)+80+(roads.includes("S")?80:0)}" fill="var(--road)"/>`;
+  if(roads.includes("W")||roads.includes("E")) s+=`<rect y="80" x="${roads.includes("W")?0:80}" height="80" width="${(roads.includes("W")?80:0)+80+(roads.includes("E")?80:0)}" fill="var(--road)"/>`;
+  const dash=`stroke="var(--roadline)" stroke-width="2" stroke-dasharray="10 8"`;
+  if(roads.includes("N")) s+=`<path d="M120 0 V76" ${dash}/>`;
+  if(roads.includes("S")) s+=`<path d="M120 164 V240" ${dash}/>`;
+  if(roads.includes("W")) s+=`<path d="M0 120 H76" ${dash}/>`;
+  if(roads.includes("E")) s+=`<path d="M164 120 H240" ${dash}/>`;
+  if(o.tram){s+=`<path d="M114 0 V240 M126 0 V240" stroke="#9AA3B5" stroke-width="2"/>`}
+  // signs at approaches (placed on the right-hand verge of each approach)
+  for(const [d,id] of Object.entries(o.signs||{})){
+    const [x,y]=rotPt(178,180,ROT[d]);
+    s+=`<svg x="${(x-15).toFixed(0)}" y="${(y-15).toFixed(0)}" width="30" height="30" viewBox="0 0 100 100">${SIGNS[id].svg}</svg>`;
+  }
+  const paths={s:"M140 176 V18",r:"M140 176 Q140 140 176 140 H226",l:"M140 176 Q140 100 100 100 H14"};
+  for(const c of o.cars||[]){
+    const deg=ROT[c.from], col=c.tram?"#2F7BEA":(c.color||"#E39B12");
+    s+=`<g transform="rotate(${deg} 120 120)">`;
+    s+=`<path d="${c.tram?paths[c.turn].replace("M140","M120").replace("V18","V18"):paths[c.turn]}" fill="none" stroke="${col}" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round"/>`;
+    // arrowhead at end
+    const ends={s:"M133 22 L140 8 L147 22 Z",r:"M222 133 L236 140 L222 147 Z",l:"M18 93 L4 100 L18 107 Z"};
+    s+=`<path d="${ends[c.turn]}" fill="${col}" ${c.tram&&c.turn==="s"?'transform="translate(-20 0)"':""}/>`;
+    if(c.tram) s+=`<rect x="${c.from==="N"||c.from==="S"?108:126}" y="176" width="24" height="56" rx="4" fill="${col}" stroke="${BLK}" stroke-width="1.5"/>`;
+    else s+=`<rect x="128" y="180" width="24" height="40" rx="6" fill="${col}" stroke="${BLK}" stroke-width="1.5"/><rect x="131" y="186" width="18" height="8" rx="2" fill="#fff" opacity=".7"/>`;
+    s+=`</g>`;
+    const [lx,ly]=rotPt(c.tram?(c.from==="N"||c.from==="S"?120:138):140,c.tram?212:204,deg);
+    s+=`<text x="${lx.toFixed(0)}" y="${(ly+6).toFixed(0)}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-weight="700" font-size="16" fill="${BLK}">${c.label}</text>`;
+  }
+  for(const p of o.peds||[]){const [x,y]=rotPt(p[0],p[1],0);s+=person(x,y,.7)}
+  return s+`</svg>`;
+}
+
+/* ============ QUESTIONS ============ */
+const TOPICS={
+  margid:"Liiklusmärgid", eesoigus:"Eesõigus ja ristmikud", foor:"Foorid ja reguleerija", kiirus:"Kiirus ja pikivahe",
+  manoover:"Manöövrid ja möödasõit", parkimine:"Peatumine ja parkimine", jalakaija:"Jalakäijad ja jalgratturid",
+  ohutus:"Liiklusohutus", soiduk:"Sõiduk, tuled ja rehvid", onnetus:"Õnnetus ja esmaabi"
+};
+const LS="Liiklusseadus", LKV="Liikluskorraldusvahendite ja nende kasutamise tingimuste määrus (liiklusmärgid)";
+const TEH="Mootorsõiduki ja selle haagise tehnonõuded ning nõuded varustusele (määrus)";
+// q: question, o: options (first is correct), e: explanation, s: source, f: figure, safe: traffic-safety question
+const Q=[
+ // ---- Eesõigus ----
+ {id:"e1",t:"eesoigus",q:"Samaliigiliste teede ristmik, märke ega foore pole. Kumb sõiduk sõidab esimesena?",f:crossSvg({cars:[{from:"S",turn:"s",label:"1"},{from:"E",turn:"s",label:"2",color:"#2FA35B"}]}),
+  o:["Auto 2","Auto 1","Mõlemad korraga","See, kes jõudis ristmikule varem"],e:"Samaliigiliste teede ristmikul annab juht teed paremalt lähenevale sõidukile (parema käe reegel). Auto 1 jaoks tuleb auto 2 paremalt.",s:LS+", ristmikul sõitmine (parema käe reegel)"},
+ {id:"e2",t:"eesoigus",q:"Samaliigiliste teede ristmik. Auto 1 pöörab vasakule, auto 2 sõidab vastassuunast otse. Kes sõidab esimesena?",f:crossSvg({cars:[{from:"S",turn:"l",label:"1"},{from:"N",turn:"s",label:"2",color:"#2FA35B"}]}),
+  o:["Auto 2","Auto 1","Auto 1, sest ta näitas suunatuld","Kumbki ei pea teed andma"],e:"Vasakule pöörav juht peab andma teed vastassuunast otse sõitvale ja paremale pööravale sõidukile. Suunatuli ei anna eesõigust.",s:LS+", vasakpöörde nõuded"},
+ {id:"e3",t:"eesoigus",q:"Ristmikul on peatee põhja–lõuna suunas. Auto 1 tuleb kõrvalteelt (märk „Anna teed“), auto 2 sõidab peateel. Kes sõidab esimesena?",f:crossSvg({signs:{E:"anna",W:"anna",S:"peatee",N:"peatee"},cars:[{from:"E",turn:"s",label:"1"},{from:"S",turn:"s",label:"2",color:"#2FA35B"}]}),
+  o:["Auto 2, sest ta on peateel","Auto 1, sest auto 2 tuleb talle vasakult","Mõlemad korraga","Auto 1, sest ta jõudis ristmikule varem"],e:"Märk „Anna teed“ kohustab andma teed peateel liiklejatele. Parema käe reegel kehtib ainult samaliigiliste teede ristmikul.",s:LKV+"; "+LS+", eesõigus ristmikul"},
+ {id:"e4",t:"eesoigus",q:"Samaliigiliste teede ristmik, kõik sõidavad otse. Mis järjekorras sõidukid ristmiku läbivad?",f:crossSvg({roads:"NSWE",cars:[{from:"S",turn:"s",label:"1"},{from:"W",turn:"s",label:"2",color:"#2FA35B"},{from:"E",turn:"s",label:"3",color:"#9B5CD6"}]}),
+  o:["Auto 3, auto 1, auto 2","Auto 1, auto 2, auto 3","Auto 2, auto 1, auto 3","Auto 3, auto 2, auto 1"],e:"Autol 3 pole paremal kedagi, seega sõidab ta esimesena. Seejärel auto 1, kelle paremal oli auto 3. Viimasena auto 2, kelle paremal on auto 1.",s:LS+", parema käe reegel"},
+ {id:"e5",t:"eesoigus",q:"Samaliigiliste teede ristmik. Tramm (T) sõidab otse, auto 1 sõidab otse. Kes sõidab esimesena?",f:crossSvg({tram:true,cars:[{from:"N",turn:"s",label:"T",tram:true},{from:"W",turn:"s",label:"1"}]}),
+  o:["Tramm","Auto, sest tramm tuleb talle vasakult","Mõlemad korraga","See, kes annab helisignaali"],e:"Samaliigiliste teede ristmikul on trammil eesõigus rööbasteta sõidukite ees, sõltumata sellest, kummalt poolt ta tuleb.",s:LS+", trammi eesõigus ristmikul"},
+ {id:"e6",t:"eesoigus",q:"Samaliigiliste teede ristmik. Auto 1 pöörab paremale, auto 2 pöörab vastassuunast vasakule samale teele. Kes sõidab esimesena?",f:crossSvg({roads:"NSE",cars:[{from:"S",turn:"r",label:"1"},{from:"N",turn:"l",label:"2",color:"#2FA35B"}]}),
+  o:["Auto 1","Auto 2","Mõlemad korraga, sest sõidavad eri radadele","Auto 2, sest ta tuleb peateelt"],e:"Vasakule pöörav auto 2 peab andma teed vastassuunast otse sõitvale ja paremale pööravale sõidukile.",s:LS+", vasakpöörde nõuded"},
+ {id:"e7",t:"eesoigus",q:"Sõidad hoovist (kõrvalalalt) teele. Kellele pead teed andma?",o:["Kõigile teel liiklejatele, ka jalakäijatele","Ainult paremalt tulevatele sõidukitele","Ainult jalakäijatele","Kellelegi, kui näitad suunatuld"],e:"Kõrvalalalt (hoovist, parklast, tanklast) teele sõitev juht peab andma teed kõigile teel liiklejatele.",s:LS+", kõrvalalalt teele sõitmine"},
+ {id:"e8",t:"eesoigus",q:"Märk STOP on ristmiku ees, ristuval teel pole ühtegi sõidukit. Mida teed?",f:"sign:stop",o:["Peatun stoppjoone ees ja sõidan siis edasi","Aeglustan ja sõidan peatumata edasi","Peatun ainult siis, kui keegi läheneb","Annan helisignaali ja sõidan edasi"],e:"STOP-märgi juures tuleb alati peatuda, ka tühja ristuva tee korral.",s:LKV},
+ {id:"e9",t:"eesoigus",q:"Ringristmiku sissesõidul on märk „Anna teed“. Ringil sõidab auto. Mida teed?",o:["Annan teed ringil sõitvale autole","Sõidan esimesena, sest auto on mulle vasakul","Sõidan, kui näitan parempoolset suunatuld","Ringil sõitja peab mulle teed andma"],e:"Märk „Anna teed“ ringristmiku sissesõidul kohustab andma teed ringil liikuvatele sõidukitele.",s:LKV+"; "+LS},
+ {id:"e10",t:"eesoigus",q:"Asulas hakkab tähistatud peatusest sõitu alustama buss, mis annab suunatulega märku. Mida pead tegema?",o:["Võimaldama bussil sõitu alustada, vajadusel aeglustades","Jätkama sõitu, sest mul on eesõigus","Andma helisignaali","Mööda sõitma vastassuunavööndi kaudu"],e:"Asulas peab juht andma teed bussile, mis alustab sõitu tähistatud peatusest ja annab sellest suunatulega märku.",s:LS+", ühissõiduki eelistamine asulas"},
+ {id:"e11",t:"eesoigus",q:"Sinu taga läheneb sõiduk, millel vilgub sinine vilkur ja töötab erihelisignaal. Mida teed?",o:["Annan teed, vajadusel peatun tee servas","Kiirendan, et mitte ette jääda","Jätkan samamoodi, sest mul on roheline tuli","Pidurdan järsult sõiduraja keskel"],e:"Sinise vilkuri ja erihelisignaaliga operatiivsõidukile tuleb teed anda ning vajadusel peatuda.",s:LS+", operatiivsõidukile teeandmine"},
+ {id:"e12",t:"eesoigus",q:"Mida näitab peatee märgi all olev lisatahvel, millel ristmiku skeemil on üks teekaar jämeda joonega?",o:["Peatee suunda sellel ristmikul","Ümbersõidu marsruuti","Teetööde asukohta","Kohustuslikku sõidusuunda kõigile"],e:"Lisatahvel „Peatee suund“ näitab, kuhu peatee ristmikul pöördub.",s:LKV},
+ // ---- Foor ----
+ {id:"f1",t:"foor",q:"Mida tähendab vilkuv kollane foorituli?",o:["Ristmik on reguleerimata, juhindun märkidest ja eesõigusreeglitest","Pean peatuma nagu punase tule korral","Mul on alati eesõigus","Foor läheb kohe roheliseks"],e:"Vilkuv kollane tuli hoiatab ohu eest: liikumist foor ei reguleeri, kehtivad märgid ja eesõigusreeglid.",s:LS+" § 7"},
+ {id:"f2",t:"foor",q:"Süttib kollane tuli, kuid oled stoppjoonele nii lähedal, et ohutult peatuda ei saa. Mida teed?",o:["Võin sõitu jätkata","Pidurdan igal juhul järsult","Tagurdan stoppjoone taha","Peatun ristmiku keskel"],e:"Kollane tuli keelab liikuda, välja arvatud juhul, kui juht ei saa enam ohutult peatuda.",s:LS+" § 7"},
+ {id:"f3",t:"foor",q:"Roheline foorituli hakkab vilkuma. Mida see tähendab?",o:["Roheline tuli lõpeb varsti ja süttib kollane","Pean kohe peatuma","Foor on rikkis","Võin pöörata ka punase noole suunas"],e:"Vilkuv roheline teatab, et lubava tule aeg lõpeb peagi.",s:LS+" § 7"},
+ {id:"f4",t:"foor",q:"Põlevad korraga punane ja kollane tuli. Mida see tähendab?",o:["Varsti süttib roheline, kuid liikuda veel ei tohi","Võin hakata liikuma","Foor on välja lülitatud","Pean ristmikult kiiresti lahkuma"],e:"Punane koos kollasega teatab rohelise tule süttimisest. Liikumine on endiselt keelatud.",s:LS+" § 7"},
+ {id:"f5",t:"foor",q:"Põleb punane tuli, lisasektsioonis põleb roheline nool paremale. Mida tohid teha?",o:["Pöörata paremale, andes teed teistest suundadest liiklejatele ja jalakäijatele","Sõita otse","Pöörata paremale, sest mul on eesõigus kõigi ees","Mitte midagi, sest põleb punane"],e:"Lisasektsiooni roheline nool lubab liikuda noole suunas, kuid juht peab andma teed teistest suundadest liiklejatele.",s:LS+" § 7"},
+ {id:"f6",t:"foor",q:"Reguleerija tõstab käe üles. Mida see tähendab?",o:["Kõigil on liikumine keelatud (v.a need, kes ei saa ohutult peatuda)","Kõik võivad liikuda","Ainult jalakäijad võivad liikuda","Liikuda tohib ainult otse"],e:"Ülestõstetud käsi keelab kõigil liiklejatel liikuda, nagu kollane foorituli.",s:LS+" § 10"},
+ {id:"f7",t:"foor",q:"Reguleerija seisab sinu poole küljega, käed alla lastud või külgedele sirutatud. Mida tohid teha?",o:["Sõita otse ja paremale","Ainult vasakule pöörata","Mitte liikuda","Teha tagasipöörde"],e:"Kui reguleerija on liikleja poole küljega (käed küljele või alla), lubab ta sõita otse ja paremale. Jalakäijad tohivad ületada sõiduteed tema selja ja rinna eest.",s:LS+" § 10"},
+ {id:"f8",t:"foor",q:"Ristmikul töötab foor ja reguleerija annab foorituledele vastupidiseid märguandeid. Kumba järgid?",o:["Reguleerijat","Foori","Liiklusmärke","Parema käe reeglit"],e:"Reguleerija märguanded on ülimuslikud foorituledele, märkidele ja teekattemärgistele.",s:LS+", liikluse korraldamise vahendite tähtsusjärjekord"},
+ {id:"f9",t:"foor",q:"Ristmikul on märk „Anna teed“, aga foor näitab sulle rohelist tuld. Kumba järgid?",o:["Foori","Märki","Mõlemat: pean peatuma","Kumbagi, kehtib parema käe reegel"],e:"Foorituli on eesõigusmärkidest ülimuslik. Märgid kehtivad, kui foor on välja lülitatud või vilgub kollane.",s:LS+", liikluse korraldamise vahendite tähtsusjärjekord"},
+ {id:"f10",t:"foor",q:"Põleb roheline tuli ja pöörad vasakule. Vastassuunast sõidab auto otse. Kes annab teed?",o:["Mina","Vastutulev auto","Kumbki, sest roheline lubab kõigil","See, kes on aeglasem"],e:"Ka rohelise tule ajal peab vasakule pöörav juht andma teed vastassuunast otse ja paremale sõitjatele.",s:LS+", vasakpöörde nõuded"},
+ // ---- Kiirus ----
+ {id:"k1",t:"kiirus",q:"Milline on suurim lubatud kiirus asulas, kui märgid ei näita teisiti?",o:["50 km/h","40 km/h","60 km/h","70 km/h"],e:"Asulasisesel teel on suurim lubatud kiirus 50 km/h.",s:LS+" § 15 lg 1 p 2"},
+ {id:"k2",t:"kiirus",q:"Milline on suurim lubatud kiirus asulavälisel teel, kui märgid ei näita teisiti?",o:["90 km/h","100 km/h","110 km/h","80 km/h"],e:"Asulavälisel teel on suurim lubatud kiirus 90 km/h. Märgiga võib Transpordiamet seda oludest sõltuvalt tõsta.",s:LS+" § 15 lg 1 p 1"},
+ {id:"k3",t:"kiirus",q:"Milline on suurim lubatud kiirus õuealal?",f:"sign:oueala",o:["20 km/h","10 km/h","30 km/h","Jalakäija kiirus alati"],e:"Õuealal on suurim lubatud kiirus 20 km/h. Jalakäija vahetus läheduses tohib sõita ainult jalakäija kiirusega.",s:LS+" § 15 lg 1 p 6"},
+ {id:"k4",t:"kiirus",q:"Milline on suurim lubatud kiirus teise sõiduki pukseerimisel?",o:["50 km/h","30 km/h","70 km/h","90 km/h"],e:"Pukseerimisel on suurim lubatud kiirus 50 km/h.",s:LS+" § 15 lg 1 p 4"},
+ {id:"k5",t:"kiirus",q:"Kas asulas võib märgiga lubada suuremat kiirust kui 50 km/h?",o:["Jah, kuni 90 km/h","Ei, asulas on alati kuni 50 km/h","Jah, kuni 120 km/h","Ainult öösel"],e:"Kohalik omavalitsus võib asulasisesel teel oludest sõltuvalt tõsta suurimat lubatud kiirust kuni 90 km/h.",s:LS+" § 15 lg 2"},
+ {id:"k6",t:"kiirus",q:"Kui suure kiiruse võib Transpordiamet asulavälisel teel märgiga kõige rohkem lubada?",o:["120 km/h","110 km/h","130 km/h","100 km/h"],e:"Asulavälisel teel võib suurimat lubatud kiirust tõsta kuni 120 km/h. Suvel kehtib paljudel maanteedel 100 või 110 km/h, talvel taas madalam.",s:LS+" § 15 lg 2"},
+ {id:"k7",t:"kiirus",q:"Märk näitab 90 km/h, kuid on tihe udu ja nähtavus on halb. Millise kiirusega sõidad?",o:["Nii, et jõuan peatuda nähtava teeosa piires","90 km/h, sest märk lubab","Vähemalt 70 km/h, et mitte liiklust takistada","Sõidan ohutuledega 90 km/h"],e:"Juht peab valima kiiruse vastavalt nähtavusele, teeoludele ja liiklusele. Piirkiirus on ülempiir, mitte soovitus.",s:LS+", sõidukiiruse valik",safe:true},
+ {id:"k8",t:"kiirus",q:"Millest koosneb peatumisteekond?",o:["Reageerimisteekonnast ja pidurdusteekonnast","Ainult pidurdusteekonnast","Pidurdusteekonnast ja pikivahest","Reageerimisajast ja pikivahest"],e:"Peatumisteekond on teekond, mille sõiduk läbib ohu märkamisest kuni seismajäämiseni: juhi reageerimise ajal läbitud teekond pluss pidurdusteekond.",s:"Liiklusohutuse alused",safe:true},
+ {id:"k9",t:"kiirus",q:"Kuidas muutub pidurdusteekond, kui kiirus kahekordistub (näiteks 40 → 80 km/h)?",o:["Umbes neli korda pikemaks","Kaks korda pikemaks","Jääb samaks","Poole lühemaks"],e:"Pidurdusteekond kasvab ligikaudu kiiruse ruudus: kaks korda suurem kiirus tähendab umbes neli korda pikemat pidurdusteekonda.",s:"Liiklusohutuse alused (füüsika)",safe:true},
+ {id:"k10",t:"kiirus",q:"Kui suur peab olema pikivahe ees sõitva sõidukiga?",o:["Nii suur, et ees sõitja järsul pidurdusel jõuaksin kokkupõrketa peatuda","Täpselt 10 meetrit","Ühe auto pikkus","Pikivahe pole oluline, kui pidurid on korras"],e:"Seadus nõuab pikivahet, mis võimaldab kokkupõrget vältida. Rusikareegel kuival teel on vähemalt 2 sekundit, libedal tuleb vahet mitmekordistada.",s:LS+", pikivahe",safe:true},
+ {id:"k11",t:"kiirus",q:"Kui suur on soovituslik minimaalne pikivahe kuival teel ajas mõõdetuna?",o:["Umbes 2 sekundit","Umbes 0,5 sekundit","Umbes 10 sekundit","Umbes 1 minut"],e:"Kahe sekundi reegel: kui eessõitja möödub mingist punktist, pead sina sinna jõudma alles umbes 2 sekundi pärast. Märjal ja libedal teel jäta rohkem.",s:"Liiklusohutuse alused (soovitus)",safe:true},
+ {id:"k12",t:"kiirus",q:"Milline on mopeedi suurim lubatud kiirus?",o:["45 km/h","25 km/h","50 km/h","60 km/h"],e:"Mopeedi suurim lubatud kiirus on 45 km/h.",s:LS+" § 15 lg 1 p 9"},
+ // ---- Manöövrid ----
+ {id:"m1",t:"manoover",q:"Kummalt poolt tohib üldjuhul mööda sõita?",o:["Vasakult","Paremalt","Mõlemalt poolt","Paremalt, kui tee on lai"],e:"Möödasõit toimub vasakult. Paremalt tohib mööduda sõidukist, mille juht on andnud märku vasakpöördest ja asunud vasakpöördeks.",s:LS+", möödasõit"},
+ {id:"m2",t:"manoover",q:"Sinust sõidab mööda teine sõiduk. Mida sa ei tohi teha?",o:["Kiirust suurendada ega muul viisil möödasõitu takistada","Hoida oma sõidurada","Jätkata sama kiirusega","Vaadata peeglisse"],e:"Juht, kellest möödutakse, ei tohi kiirust suurendada ega möödasõitu muul viisil takistada.",s:LS+", möödasõit"},
+ {id:"m3",t:"manoover",q:"Kus on möödasõit keelatud?",o:["Raudteeülesõidukohal","Pikal sirgel asulavälisel teel","Kahesuunalisel teel hea nähtavusega","Kiirteel"],e:"Raudteeülesõidukohal on möödasõit keelatud. Keelatud on see ka näiteks reguleerimata ülekäigurajal ja halva nähtavusega kohas.",s:LS+", möödasõidu keelud"},
+ {id:"m4",t:"manoover",q:"Kas suunatule näitamine annab sulle eesõiguse?",o:["Ei, see ainult teavitab teisi kavatsusest","Jah, alati","Jah, kui näitan seda vähemalt 3 sekundit","Ainult ringristmikul"],e:"Suunatuld tuleb näidata aegsasti enne manöövrit, kuid see ei anna eesõigust.",s:LS+", märguanded"},
+ {id:"m5",t:"manoover",q:"Kus on tagasipööre keelatud?",o:["Raudteeülesõidukohal","Laial asulateel","Samaliigiliste teede ristmikul","Parklas"],e:"Tagasipööre on keelatud muu hulgas raudteeülesõidukohal, tunnelis ja kohtades, kus nähtavus on piiratud.",s:LS+", tagasipööre"},
+ {id:"m6",t:"manoover",q:"Rivistud ümber kõrvalrajale. Samas suunas sõidab sellel rajal teine sõiduk. Kes annab teed?",o:["Mina, kes rivistun ümber","Kõrvalrajal sõitja","See, kes on aeglasem","Kumbki, sest märku andsin"],e:"Ümberrivistuja peab andma teed samas suunas kõrvalrajal sõitjale.",s:LS+", ümberrivistumine"},
+ {id:"m7",t:"manoover",q:"Kaks sõidukit rivistuvad korraga teineteise suunas ümber samale rajale. Kes annab teed?",o:["Vasakpoolne annab teed parempoolsele","Parempoolne annab teed vasakpoolsele","Aeglasem annab teed","Suurem sõiduk annab teed"],e:"Samaaegsel ümberrivistumisel annab vasakul olev juht teed paremal olevale.",s:LS+", ümberrivistumine"},
+ {id:"m8",t:"manoover",q:"Raudteeülesõidukohal on tõkkepuu laskumas ja punased tuled vilguvad. Mida teed?",o:["Peatun ega sõida ülesõidukohale","Sõidan kiiresti üle enne tõkkepuu sulgumist","Sõidan üle, kui rongi ei paista","Sõidan tõkkepuust mööda vastassuunavööndi kaudu"],e:"Vilkuvad punased tuled ja laskuv või suletud tõkkepuu keelavad ülesõidukohale sõitmise.",s:LS+", raudteeülesõidukoht",safe:true},
+ {id:"m9",t:"manoover",q:"Mida tuleb teha enne paremale pööramist?",o:["Asuda aegsasti tee parema serva lähedale ja näidata suunatuld","Asuda tee keskele","Näidata suunatuld alles pöörde ajal","Kiirendada, et pööre kiiresti lõpetada"],e:"Enne paremale pööramist asub juht aegsasti sõidutee parema serva lähedale ja annab suunatulega märku.",s:LS+", pööramine"},
+ {id:"m10",t:"manoover",q:"Mis on kiirteel keelatud?",o:["Tagasipööre ja tagurdamine","Sõitmine vasakpoolsel sõidurajal möödasõiduks","Sõitmine kiirusega 90 km/h","Suunatule kasutamine"],e:"Kiirteel on keelatud tagasipööre, tagurdamine ja sõitmine eraldusriba vaheavadest.",s:LS+", kiirteel sõitmine"},
+ {id:"m11",t:"manoover",q:"Tagurdamisel ei näe sa hästi, mis on auto taga. Mida peaksid tegema?",o:["Veenduma ohutuses, vajadusel kasutama kõrvalise isiku abi","Tagurdama kiiresti, et mitte kaua takistada","Lootma ainult helisignaalile","Tagurdama ohutuledega"],e:"Tagurdades peab juht veenduma, et see on ohutu, ja vajaduse korral kasutama kõrvalise isiku abi.",s:LS+", tagurdamine"},
+ // ---- Peatumine ----
+ {id:"p1",t:"parkimine",q:"Mis vahe on märkidel „Peatumise keeld“ ja „Parkimise keeld“?",f:"sign:parkimiskeeld",o:["Parkimiskeelu korral tohib lühidalt peatuda, peatumiskeelu korral mitte","Vahet pole","Peatumiskeeld kehtib ainult öösel","Parkimiskeeld kehtib ainult veokitele"],e:"Peatumise keeld (rist) keelab ka lühiajalise peatumise. Parkimise keeld (üks kriips) lubab peatuda, näiteks reisijate peale ja maha minekuks.",s:LKV},
+ {id:"p2",t:"parkimine",q:"Kui lähedal ülekäigurajale tohib selle ees peatuda?",o:["Mitte lähemal kui 5 m","Mitte lähemal kui 1 m","Vahetult ülekäiguraja ees","Mitte lähemal kui 50 m"],e:"Peatumine on keelatud ülekäigurajal ja lähemal kui 5 m enne seda, et seisev auto ei varjaks jalakäijaid.",s:LS+", peatumise keelud"},
+ {id:"p3",t:"parkimine",q:"Kus on peatumine keelatud?",o:["Raudteeülesõidukohal","Parklas","Teepeenral, kui märk lubab","Tee paremas servas asulas"],e:"Peatumine on keelatud muu hulgas raudteeülesõidukohal, tunnelis ja ülekäigurajal.",s:LS+", peatumise keelud"},
+ {id:"p4",t:"parkimine",q:"Asulas ühesuunalise sõiduteega teel tahad peatuda. Kummas servas tohib?",o:["Paremas või vasakus servas","Ainult paremas servas","Ainult vasakus servas","Ainult sõidutee keskel"],e:"Üldjuhul peatutakse paremas servas, kuid asulas ühesuunalise sõiduteega teel võib peatuda ka vasakus servas.",s:LS+", peatumine ja parkimine"},
+ {id:"p5",t:"parkimine",q:"Lähed seisvast autost välja vasakpoolse ukse kaudu. Mida pead tegema?",o:["Veenduma, et ukse avamine ei ohusta teisi, näiteks jalgratturit","Avama ukse kiiresti, et mitte liiklust takistada","Andma helisignaali","Mitte midagi erilist"],e:"Sõiduki ust tohib avada alles siis, kui see ei ohusta ega takista teisi liiklejaid.",s:LS+", sõitjate kohustused",safe:true},
+ {id:"p6",t:"parkimine",q:"Mida tuleb teha enne autost lahkumist, kui jätad selle seisma?",o:["Rakendada seisupidur ja võtta meetmed, et auto ei hakkaks iseeneslikult liikuma","Jätta mootor tööle","Jätta auto käiku ilma seisupidurita","Lülitada sisse kaugtuled"],e:"Juht peab enne sõidukist lahkumist tagama, et sõiduk ei saaks iseeneslikult liikuma hakata ega seda saaks kasutada keegi kõrvaline.",s:LS+", juhi kohustused"},
+ {id:"p7",t:"parkimine",q:"Kui lähedal ristmikule tohib peatuda?",o:["Mitte lähemal kui 5 m ristuva sõidutee servast","Vahetult ristmikul, kui ohutuled põlevad","Mitte lähemal kui 1 m","Kuitahes lähedal"],e:"Peatumine on keelatud ristmikul ja lähemal kui 5 m ristuva sõidutee servast.",s:LS+", peatumise keelud"},
+ // ---- Jalakäijad ----
+ {id:"j1",t:"jalakaija",q:"Reguleerimata ülekäigurajale astub jalakäija. Mida teed?",f:"sign:ylekaigurada",o:["Annan jalakäijale teed","Sõidan edasi, sest olen juba lähedal","Annan helisignaali ja sõidan","Annan teed ainult lapsele"],e:"Juht on kohustatud andma teed jalakäijale, kes on ülekäigurajal või sinna astumas.",s:LS+" § 2 p 100"},
+ {id:"j2",t:"jalakaija",q:"Sõidurajal sinu kõrval peatus auto ülekäiguraja ees. Mida pead tegema?",o:["Peatuma või aeglustama ja jätkama alles siis, kui olen veendunud, et rajal pole jalakäijat","Mööduma kiiresti","Mööduma, sest kõrvalrajal seisja annab teed","Andma helisignaali"],e:"Peatunud auto võib varjata jalakäijat. Jätkata tohib alles siis, kui oled veendunud, et ülekäigurajal ei ole jalakäijat.",s:LS+", ülekäigurajal sõitmine",safe:true},
+ {id:"j3",t:"jalakaija",q:"Jalakäija ületab teed ülekäigukohas (märgistuseta), sina sõidad otse. Kellel on eesõigus?",o:["Juhil","Jalakäijal","Sellel, kes on paremalt","Mõlemal"],e:"Ülekäigukohas pole jalakäijal juhi ees eesõigust. Erand: kui juht pöörab teele, mida jalakäija ületab, peab juht andma teed.",s:LS+" § 2 p 99"},
+ {id:"j4",t:"jalakaija",q:"Pöörad paremale ja ristuvat teed, millele pöörad, ületab jalakäija. Mida teed?",o:["Annan jalakäijale teed","Sõidan enne jalakäijat","Annan helisignaali","Pööran laia kaarega ümber jalakäija"],e:"Pöörates peab juht andma teed teed ületavale jalakäijale, kelle teed ta ristub.",s:LS+", pööramine"},
+ {id:"j5",t:"jalakaija",q:"Pöörad paremale üle jalgrattatee, millel sõidab jalgrattur otse. Kes annab teed?",o:["Mina","Jalgrattur","See, kes on aeglasem","Kumbki"],e:"Pöörav juht peab andma teed jalgrattateel otse sõitvale jalgratturile.",s:LS+", pööramine"},
+ {id:"j6",t:"jalakaija",q:"Teel liigub valge kepiga jalakäija. Mida see tähendab?",o:["Ta on nägemispuudega, pean olema eriti ettevaatlik ja andma teed","Ta on liiklusreguleerija","Ta on teetööline","Midagi erilist see ei tähenda"],e:"Valge kepp tähistab nägemispuudega inimest. Juht peab olema eriti tähelepanelik ja talle teed andma.",s:LS+", juhi kohustused"},
+ {id:"j7",t:"jalakaija",q:"Miks peab jalakäija pimedal ajal kandma helkurit?",o:["Lähituledes nähakse helkuriga jalakäijat palju kaugemalt","Helkur on ainult laste jaoks","Helkur asendab ülekäigurada","Helkur annab jalakäijale eesõiguse"],e:"Helkurita tumedalt riides jalakäija märkab juht lähitulede valgel alles väga lähedalt. Helkuriga märkab ta teda mitu korda kaugemalt.",s:LS+", jalakäija kohustused",safe:true},
+ {id:"j8",t:"jalakaija",q:"Õuealal kõnnib jalakäija keset teed. Mida teed?",o:["Sõidan jalakäija kiirusega ja olen valmis peatuma","Annan helisignaali, et ta läheks kõnniteele","Sõidan 20 km/h temast mööda","Sõidan tagasi"],e:"Õuealal tohib jalakäija kasutada kogu tee laiust. Jalakäija vahetus läheduses tohib sõita ainult jalakäija kiirusega.",s:LS+" § 15 lg 1 p 6"},
+ {id:"j9",t:"jalakaija",q:"Lähened teel seisvale bussile, millest väljuvad lapsed. Mida teed?",o:["Vähendan kiirust ja olen valmis peatuma","Annan helisignaali ja sõidan mööda","Sõidan kiiresti mööda","Jätkan endise kiirusega"],e:"Lapsed võivad bussi tagant ootamatult teele joosta. Vähenda kiirust ja ole valmis peatuma.",s:LS+", juhi kohustused",safe:true},
+ // ---- Ohutus ----
+ {id:"o1",t:"ohutus",q:"Millisest alkoholisisaldusest alates loetakse mootorsõidukijuht joobeseisundis olevaks?",o:["0,20 promilli veres või 0,10 mg/l väljahingatavas õhus","0,50 promilli veres","1,5 promilli veres","Igasugune alkoholi lõhn"],e:"Mootorsõidukijuht on joobeseisundis, kui tema veres on alkoholi 0,20 promilli või rohkem või väljahingatavas õhus 0,10 mg/l või rohkem. Kõige kindlam on mitte juua üldse.",s:LS+" § 69",safe:true},
+ {id:"o2",t:"ohutus",q:"Õhtul jõid alkoholi. Mis kiirendab alkoholi organismist väljumist?",o:["Ainult aeg, midagi muud ei kiirenda","Kange kohv","Külm dušš","Uni kahe tunni jooksul"],e:"Alkohol laguneb organismis ühtlaselt ja seda ei saa kiirendada. Hommikul võib veres olla veel jääkalkoholi.",s:"Liiklusohutuse alused",safe:true},
+ {id:"o3",t:"ohutus",q:"Tunned sõidu ajal väsimust ja haigutad. Mida teed?",o:["Peatun ohutus kohas ja puhkan","Avan akna ja jätkan","Keeran muusika valjemaks","Sõidan kiiremini, et sihtpunkt kiiremini kätte jõuaks"],e:"Väsimus aeglustab reageerimist nagu alkohol. Ainus tõhus abinõu on peatuda ja puhata.",s:"Liiklusohutuse alused",safe:true},
+ {id:"o4",t:"ohutus",q:"Kas sõidu ajal võib telefoni käes hoides rääkida?",o:["Ei, käeshoitavat telefoni ei tohi kasutada","Jah, kui kõne on lühike","Jah, ainult asulas","Jah, ummikus"],e:"Sõidu ajal on keelatud kasutada käeshoitavat telefoni. Ka vabakäeseade hajutab tähelepanu.",s:LS+", juhi keelud",safe:true},
+ {id:"o5",t:"ohutus",q:"Kes peavad sõiduautos kasutama turvavööd?",o:["Kõik sõitjad, ka tagaistmel","Ainult juht","Juht ja esiistmel sõitja","Ainult asulavälisel teel"],e:"Turvavöö peab olema kinnitatud kõigil sõitjatel, nii ees kui ka taga.",s:LS+", turvavöö kasutamine",safe:true},
+ {id:"o6",t:"ohutus",q:"Kas seljaga sõidusuunas lapse turvahälli võib panna esiistmele, mille ees on sisselülitatud turvapadi?",o:["Ei","Jah","Jah, kui laps on üle 1 aasta","Jah, lühikestel sõitudel"],e:"Avanev turvapadi võib last raskelt vigastada. Seljaga sõidusuunas turvahälli ei tohi paigaldada aktiveeritud turvapadjaga istmele.",s:LS+", laste sõidutamine",safe:true},
+ {id:"o7",t:"ohutus",q:"Kas väikest last võib autos sõidutada süles?",o:["Ei, laps peab olema kinnitatud tema pikkusele ja kaalule sobiva turvavarustusega","Jah, kui sõit on lühike","Jah, tagaistmel","Jah, kui täiskasvanu on kinnitatud"],e:"Laps tuleb kinnitada tema kasvule ja kaalule vastava turvavarustusega. Kokkupõrkel ei suuda keegi last süles kinni hoida.",s:LS+", laste sõidutamine",safe:true},
+ {id:"o8",t:"ohutus",q:"Märjal teel tekib vesiliug (rehvid kaotavad haardumise). Mida teed?",o:["Vabastan gaasipedaali ja hoian rooli otse, järsult ei pidurda","Pidurdan täiest jõust","Keeran rooli järsult","Lisan gaasi"],e:"Vesiliu korral vabasta gaas ja hoia rool otse, kuni rehvid saavad uuesti teepinnaga kontakti.",s:"Liiklusohutuse alused",safe:true},
+ {id:"o9",t:"ohutus",q:"Kuidas pidurdada hädaolukorras autoga, millel on ABS?",o:["Vajutan pidurit täiest jõust ja hoian all","Pumpan pidurit","Pidurdan ainult seisupiduriga","Lülitan mootori välja"],e:"ABS hoiab rattad pöörlemas ja auto juhitavana. Pidurit tuleb vajutada täiest jõust ja hoida.",s:"Liiklusohutuse alused",safe:true},
+ {id:"o10",t:"ohutus",q:"Vastutuleva auto tuled pimestavad sind. Mida teed?",o:["Vähendan kiirust ja vaatan tee paremale servale","Lülitan oma kaugtuled sisse","Sulgen hetkeks silmad","Kiirendan"],e:"Pimestamisel vähenda kiirust, vajadusel peatu, ja vaata tee parema serva poole. Kaugtuledega vastu pimestamine on ohtlik ja keelatud.",s:LS+", tulede kasutamine",safe:true},
+ {id:"o11",t:"ohutus",q:"Kuidas läbida järsku kurvi?",o:["Vähendan kiirust enne kurvi, kurvis hoian ühtlast kiirust","Pidurdan kurvi keskel","Kiirendan kurvi sisenedes","Lõikan kurvi vastassuunavööndi kaudu"],e:"Pidurdamine kurvis võib põhjustada libisemise. Kiirus tuleb sobivaks vähendada enne kurvi.",s:"Liiklusohutuse alused",safe:true},
+ {id:"o12",t:"ohutus",q:"Kuidas peab pikivahe muutuma libedal teel?",o:["Suurenema mitu korda","Jääma samaks","Vähenema","Pikivahe pole libedal oluline"],e:"Libedal teel on pidurdusteekond mitu korda pikem. Sama palju peab suurendama ka pikivahet.",s:LS+", pikivahe",safe:true},
+ {id:"o13",t:"ohutus",q:"Võtad ravimit, mille infolehel on hoiatus autojuhtimise kohta. Mida teed?",o:["Ei juhi, kui ravim võib mõjutada juhtimisvõimet","Juhin, sest ravim on apteegist","Juhin ainult päeval","Juhin aeglasemalt"],e:"Mõned ravimid aeglustavad reageerimist või põhjustavad uimasust. Sellises seisundis on juhtimine keelatud.",s:LS+", juhi keelud",safe:true},
+ {id:"o14",t:"ohutus",q:"Hämaras ilmub teele põder. Mida teed?",o:["Pidurdan jõuliselt ja arvestan, et loom võib liikuda ootamatult","Kiirendan, et jõuda enne looma mööda","Annan helisignaali ja jätkan sama kiirusega","Lülitan tuled välja"],e:"Põder võib liikuda ettearvamatult. Pidurda jõuliselt ja väldi järske manöövreid vastassuunavööndisse.",s:"Liiklusohutuse alused",safe:true},
+ {id:"o15",t:"ohutus",q:"Mida teha uduse ilmaga sõites?",o:["Kasutan lähi- või udutulesid ja vähendan kiirust","Kasutan kaugtulesid","Sõidan eessõitja lähedal, et näha tema tulesid","Sõidan ohutuledega tavalise kiirusega"],e:"Udus halvendavad kaugtuled nähtavust. Kasuta lähi- ja udutulesid, vähenda kiirust ja suurenda pikivahet.",s:LS+", tulede kasutamine",safe:true},
+ // ---- Sõiduk ----
+ {id:"s1",t:"soiduk",q:"Milliseid tulesid peab mootorsõidukil sõidu ajal kasutama päevasel ajal?",o:["Lähi- või päevatulesid, need peavad põlema alati","Tulesid pole päeval vaja","Ainult udutulesid","Ainult ohutulesid"],e:"Mootorsõidukil peavad sõidu ajal põlema lähi- või päevasõidutuled ööpäev läbi. Pimedal ajal tuleb kasutada lähi- või kaugtulesid.",s:LS+", tulede kasutamine"},
+ {id:"s2",t:"soiduk",q:"Sõidad pimedal ajal kaugtuledega ja vastu tuleb auto. Mida teed?",o:["Lülitan kaugtuled aegsasti lähitulede peale","Jätan kaugtuled põlema","Lülitan tuled välja","Vilgutan kaugtulesid"],e:"Kaugtuled tuleb lülitada lähitulede peale, et vastutulija ei oleks pimestatud. Sama kehtib, kui sõidad teisele sõidukile lähedalt järele.",s:LS+", tulede kasutamine"},
+ {id:"s3",t:"soiduk",q:"Millal tohib Eestis kasutada naastrehve (kui Transpordiamet ilmastikust tulenevalt ei muuda)?",o:["15. oktoobrist 31. märtsini","1. novembrist 1. aprillini","1. detsembrist 1. märtsini","Aasta läbi"],e:"Naastrehvide kasutamine on lubatud 15. oktoobrist 31. märtsini. Ilmastikuolude tõttu võib Transpordiamet seda perioodi muuta.",s:TEH},
+ {id:"s4",t:"soiduk",q:"Millal on talverehvid sõiduautol kohustuslikud?",o:["1. detsembrist 1. märtsini","15. oktoobrist 31. märtsini","1. novembrist 1. maini","Ainult lume korral"],e:"Talverehvid (naastrehvid või lamellrehvid) on kohustuslikud 1. detsembrist 1. märtsini.",s:TEH},
+ {id:"s5",t:"soiduk",q:"Milline peab olema talverehvi mustri sügavus vähemalt?",o:["3 mm","1,6 mm","1 mm","5 mm"],e:"Talverehvi mustri sügavus peab olema vähemalt 3 mm (suverehvil vähemalt 1,6 mm).",s:TEH},
+ {id:"s6",t:"soiduk",q:"Mis peab sõiduautos varustuses olema?",o:["Ohukolmnurk, tulekustuti ja esmaabivahendid","Lumeketid","Pukseerimisköis ja tungraud","Varurehv ja kompressor"],e:"Sõiduauto kohustuslik varustus on ohukolmnurk, tulekustuti ja esmaabivahendid.",s:TEH},
+ {id:"s7",t:"soiduk",q:"Millal tuleb sisse lülitada ohutuled?",o:["Kui sõiduk on peatunud kohas, kus see võib teistele ohtlik olla, näiteks rikke tõttu","Kui pargin keelatud kohta","Kui sõidan aeglaselt vasakul rajal","Alati vihmaga"],e:"Ohutuled hoiatavad teisi, kui sõiduk seisab ohtlikus kohas või on sundpeatunud.",s:LS+", sundpeatumine"},
+ // ---- Õnnetus ----
+ {id:"u1",t:"onnetus",q:"Jõuad liiklusõnnetuse juurde, kus on vigastatuid. Mis on õige tegevus?",o:["Tagan ohutuse (ohutuled, ohukolmnurk), helistan 112 ja annan esmaabi","Teen fotod ja sõidan edasi","Tõstan kohe kõik kannatanud autost välja","Ootan, kuni keegi teine helistab"],e:"Esmalt tee õnnetuskoht ohutuks, et ei juhtuks uut õnnetust, siis kutsu abi numbril 112 ja anna esmaabi.",s:LS+", liiklusõnnetuse korral tegutsemine"},
+ {id:"u2",t:"onnetus",q:"Mis numbril kutsuda kiirabi, päästjad ja politsei?",o:["112","110","911","1247"],e:"Eestis on ühtne hädaabinumber 112.",s:"Häirekeskus"},
+ {id:"u3",t:"onnetus",q:"Millal tohib vigastatut õnnetuspaigal liigutada?",o:["Kui jäämine kohale ohustab tema elu, näiteks tulekahju korral","Alati, et ta mugavamalt lamaks","Kunagi mitte","Kui ta palub vett"],e:"Vigastatut ei tohi asjatult liigutada, sest see võib vigastusi raskendada. Erand on otsene eluoht.",s:"Esmaabi alused"},
+ {id:"u4",t:"onnetus",q:"Kannatanu on teadvuseta, kuid hingab. Kuidas ta asetada?",o:["Külili stabiilsesse asendisse","Selili, pea kõrgemal","Istuma","Kõhuli"],e:"Teadvuseta hingav kannatanu pannakse külili stabiilsesse asendisse, et hingamisteed püsiksid vabad.",s:"Esmaabi alused"},
+ {id:"u5",t:"onnetus",q:"Sinu auto jäi teele seisma rikke tõttu. Kuhu panna ohukolmnurk?",o:["Sõiduki taha nii kaugele, et teised märkaksid ohtu aegsasti","Vahetult sõiduki kõrvale","Sõiduki katusele","Sõiduki ette"],e:"Ohukolmnurk paigaldatakse sõiduki taha sellisele kaugusele, et teised liiklejad märkaksid seda aegsasti ja jõuaksid reageerida.",s:LS+", sundpeatumine"},
+ {id:"u6",t:"onnetus",q:"Oled osaline väikeses kokkupõrkes, keegi pole vigastatud. Mida tohib teha?",o:["Osapooled võivad vormistada ühise teate ja eemaldada sõidukid teelt","Pead õnnetuskohalt kohe lahkuma","Pead alati ootama politseid mitu tundi","Võib lahkuda nime jätmata"],e:"Kui vigastatuid pole ja osalised on asjaoludes ühel meelel, võivad nad õnnetuse ise vormistada ja sõidukid liiklust takistamast eemaldada. Õnnetuskohalt ei tohi lahkuda andmeid vahetamata.",s:LS+", liiklusõnnetuse korral tegutsemine"},
+];
+// Generated sign questions
+for(const [id,sg] of Object.entries(SIGNS)){
+  Q.push({id:"m_"+id,t:"margid",sign:id,q:"Mida tähendab see liiklusmärk?",f:"sign:"+id,o:null,e:`„${sg.n}“. ${sg.e}`,s:LKV});
+}
+function signOptions(id){
+  const me=SIGNS[id], same=[], other=[];
+  for(const [k,s] of Object.entries(SIGNS)){ if(k===id) continue; (s.g===me.g?same:other).push(s.m) }
+  const pick=(arr,n)=>shuffle(arr.slice()).slice(0,n);
+  const d=pick(same,2); d.push(...pick(other.filter(x=>!d.includes(x)),3-d.length));
+  return [me.m,...d];
+}
+
+/* ============ V3: rephrasings, twin questions, generators ============ */
+// Alternative wordings: a question seen before comes back in another wording, so answering from memory does not work.
+const VAR={
+ e1:["Ristmikul pole märke ega foori. Kumb auto läbib ristmiku esimesena?"],
+ e2:["Ristmikul pole märke. Auto 1 tahab pöörata vasakule, vastu tuleb otse sõitev auto 2. Kumb sõidab enne?"],
+ e3:["Põhja–lõuna suunaline tee on peatee. Auto 1 on kõrvalteel märgi „Anna teed“ taga, auto 2 sõidab peateel. Kes läbib ristmiku enne?"],
+ e4:["Märkideta ristmikule jõuavad korraga kolm autot, kõik sõidavad otse. Mis järjekorras nad sõidavad?"],
+ e5:["Märkideta ristmikule lähenevad tramm ja auto. Kumb sõidab esimesena?"],
+ e6:["Märkideta ristmikul pöörab auto 1 paremale ja vastu tulev auto 2 vasakule, mõlemad samale teele. Kes sõidab enne?"],
+ e7:["Väljud parklast teele. Keda pead laskma ette?","Sõidad tanklast välja sõiduteele. Kellele annad teed?"],
+ e8:["Ristmiku ees on punane kaheksanurkne STOP-märk. Ristuv tee on täiesti tühi. Kuidas toimid?"],
+ e9:["Lähened ringristmikule, mille sissesõidul on märk „Anna teed“. Ringil on teine sõiduk. Kuidas käitud?"],
+ e10:["Linnas annab peatuses seisev buss vasakpoolse suunatulega märku, et alustab sõitu. Mida teed?"],
+ e11:["Peeglist näed, et sulle läheneb kiirabiauto sinise vilkuri ja sireeniga. Mida teed?"],
+ e12:["Peatee märgi all on lisatahvel, millel on ristmik ja üks jämedam joon. Mida see jämedam joon näitab?"],
+ f1:["Ristmikul vilgub foori kollane tuli. Kuidas ristmikku läbida?"],
+ f2:["Roheline vahetub kollaseks just siis, kui oled stoppjoone juures ja järsk pidurdus oleks ohtlik. Mida teed?"],
+ f3:["Foori roheline tuli vilgub. Mida see sulle teatab?"],
+ f4:["Fooris süttib punase kõrval ka kollane tuli. Mida see tähendab?"],
+ f5:["Fooris põleb punane, kuid lisasektsioonis süttib roheline parempoolne nool. Kuidas toimid?"],
+ f6:["Liiklusreguleerija hoiab kätt ülal. Mida see liiklejatele tähendab?"],
+ f7:["Reguleerija on sinu suhtes küljega ja ta käed on alla lastud. Kuhu tohid sõita?"],
+ f8:["Foor lubab sõita, kuid reguleerija keelab. Keda kuulad?"],
+ f9:["Fooris põleb sulle roheline, kuid ristmikul on sinu suunal ka märk „Anna teed“. Mille järgi sõidad?"],
+ f10:["Sul on roheline tuli ja tahad pöörata vasakule. Vastu sõidab otse teine auto. Kes peab teed andma?"],
+ k1:["Sõidad linnas, kiirusmärke ei ole. Kui kiiresti tohid kõige rohkem sõita?","Kui suur on asulasisesel teel suurim lubatud sõidukiirus, kui liikluskorraldus ei määra teisiti?"],
+ k2:["Sõidad maanteel väljaspool asulat, kiiruspiirangu märki pole. Mis on suurim lubatud kiirus?"],
+ k3:["Sõidad elurajooni õuealal. Milline on sinu suurim lubatud kiirus?"],
+ k4:["Pukseerid rikkis autot. Kui kiiresti tohid sõita?"],
+ k5:["Kas linnas võib märgiga kehtestada suurema piirkiiruse kui 50 km/h?"],
+ k6:["Milline on suurim kiirus, mida asulavälisel teel võib liiklusmärgiga lubada?"],
+ k7:["Sajab tugevat lund ja nähtavus on vähene, kuid märk lubab 90 km/h. Kuidas valid kiiruse?"],
+ k8:["Peatumisteekond on kahe osa summa. Millised need on?"],
+ k10:["Millise pikivahe pead hoidma eessõitjaga?"],
+ k11:["Mitu sekundit peaks kuival teel olema vähemalt sinu ja eessõitja vahel?"],
+ k12:["Kui kiiresti tohib sõita mopeediga?"],
+ m1:["Kummalt poolt toimub tavaliselt möödasõit?"],
+ m2:["Teine auto alustab sinust möödasõitu. Mida sa teha ei tohi?"],
+ m3:["Millises kohas on teisest sõidukist möödasõit keelatud?"],
+ m4:["Näitasid suunatuld. Kas see annab sulle eelise teiste ees?"],
+ m5:["Millises kohas ei tohi tagasipööret teha?"],
+ m6:["Vahetad sõidurada. Kõrvalrajal sõidab sinuga samas suunas teine auto. Kes peab teed andma?"],
+ m7:["Kaks autot kõrvuti radadel vahetavad korraga rada teineteise poole. Kumb annab teed?"],
+ m8:["Raudteeülesõidul vilguvad punased tuled ja tõkkepuu hakkab langema. Kuidas toimid?"],
+ m9:["Kavatsed pöörata paremale. Kuidas selleks valmistud?"],
+ m10:["Mida ei tohi kiirteel teha?"],
+ m11:["Tagurdad ja auto taga on halb nähtavus. Kuidas toimid?"],
+ p1:["Mille poolest erineb märk „Parkimise keeld“ märgist „Peatumise keeld“?"],
+ p2:["Mitu meetrit enne ülekäigurada on peatumine keelatud?"],
+ p3:["Millises kohas ei tohi peatuda?"],
+ p4:["Linnas on ühesuunalise sõiduteega tänav. Kuhu tohid peatuda?"],
+ p5:["Avad pargitud auto juhiukse sõidutee poole. Mida pead tegema?"],
+ p6:["Jätad auto tänavale seisma ja lahkud. Mida tuleb enne teha?"],
+ p7:["Kui kaugele ristuva sõidutee servast peab peatuma?"],
+ j1:["Jalakäija astub reguleerimata ülekäigurajale. Kuidas toimid?"],
+ j2:["Kõrvalrajal sõitnud auto peatus ülekäiguraja ees. Mida teed?"],
+ j3:["Jalakäija ületab teed kohas, kus pole ülekäigurada, ja sina sõidad otse edasi. Kellel on eesõigus?"],
+ j4:["Pöörad ristmikul paremale. Teed, kuhu pöörad, ületab jalakäija. Mida teed?"],
+ j5:["Pöörad paremale ja pead ületama jalgrattatee, kus sõidab otse jalgrattur. Kumb annab teed?"],
+ j6:["Tee ääres seisab valge kepiga inimene. Mida see tähendab?"],
+ j7:["Miks on jalakäijal pimedas oluline helkur?"],
+ j8:["Õuealal liigub jalakäija sõidutee keskel. Kuidas käitud?"],
+ j9:["Peatunud bussist tulevad välja lapsed. Kuidas sõidad bussist mööda?"],
+ o1:["Milline alkoholisisaldus tähendab mootorsõidukijuhi joobeseisundit?"],
+ o2:["Kuidas saab joodud alkoholi organismist kiiremini kätte?"],
+ o3:["Sõidu ajal kipub uni peale. Mida teed?"],
+ o4:["Kas autot juhtides võib telefoni käes hoida ja rääkida?"],
+ o5:["Kellel tuleb sõiduautos turvavöö kinnitada?"],
+ o6:["Laps on turvahällis seljaga sõidusuunas. Kas hälli tohib panna esiistmele, mille turvapadi on sisse lülitatud?"],
+ o7:["Kas lühikesel sõidul võib väikese lapse võtta sülle?"],
+ o8:["Vihmasel teel kaotavad rehvid haardumise ja auto liugleb vee peal. Mida teed?"],
+ o9:["Sinu autol on ABS. Kuidas hädapidurdusel pidurit kasutada?"],
+ o10:["Vastutuleva auto tuled pimestavad. Kuidas käitud?"],
+ o11:["Kuidas läbida teravat kurvi ohutult?"],
+ o12:["Tee on jäine. Mis peab juhtuma pikivahega?"],
+ o13:["Ravimi infolehel on hoiatus, et see võib mõjutada autojuhtimist. Kuidas toimid?"],
+ o14:["Hämaras ilmub sõidutee kõrvale põder. Kuidas reageerid?"],
+ o15:["Tihe udu. Milliseid tulesid kasutad ja kuidas sõidad?"],
+ s1:["Kas päeval peavad autol tuled põlema?"],
+ s2:["Pimedas maanteel tuleb vastu auto ja sul on kaugtuled. Mida teed?"],
+ s3:["Mis kuupäevadel tohib üldjuhul kasutada naastrehve?"],
+ s4:["Mis perioodil peavad sõiduautol olema talverehvid?"],
+ s5:["Kui sügav peab talverehvi muster olema vähemalt?"],
+ s6:["Mis kuulub sõiduauto kohustusliku varustuse hulka?"],
+ s7:["Millal kasutad ohutulesid?"],
+ u1:["Satud liiklusõnnetuse juurde, kus on vigastatuid. Mis järjekorras tegutsed?"],
+ u2:["Mis numbril helistad õnnetuse korral abi kutsumiseks?"],
+ u3:["Millal tohib vigastatut õnnetuskohalt eemale tõsta?"],
+ u4:["Kuidas asetada teadvuseta, kuid hingav inimene?"],
+ u5:["Auto jäi rikke tõttu teele seisma. Kuhu paigutad ohukolmnurga?"],
+ u6:["Väike kokkupõrge, vigastatuid pole. Mida osapooled teha tohivad?"],
+};
+for(const q of Q){ if(VAR[q.id]) q.v=VAR[q.id]; if(q.sign) q.v=["Mis on selle märgi tähendus?","Mida see märk sulle ütleb?","Näed teel sellist märki. Mida see tähendab?"]; }
+
+// Twin questions: wording close to an existing question, but the correct answer differs.
+Q.push(
+ {id:"n1",t:"eesoigus",q:"Ristmikul on sinu suunal märk „Anna teed“. Ristuval teel pole kedagi ja nähtavus on hea. Kas pead peatuma?",f:"sign:anna",o:["Ei pea, võin ohutult edasi sõita","Jah, alati peatun stoppjoone ees","Jah, peatun vähemalt 3 sekundiks","Pean andma helisignaali"],e:"Märk „Anna teed“ ei kohusta peatuma, kui kellelegi pole vaja teed anda. Kohustuslik peatumine kehtib STOP-märgi juures.",s:LKV,v:["Märgi „Anna teed“ ees on ristuv tee tühi. Kas peatumine on kohustuslik?"]},
+ {id:"n2",t:"eesoigus",q:"Väljaspool asulat alustab peatusest sõitu buss. Kas oled kohustatud talle teed andma?",o:["Ei, see kohustus kehtib asulas, kuid olen tähelepanelik","Jah, alati","Jah, ainult pimedal ajal","Pean peatuma bussi taga"],e:"Kohustus anda teed peatusest sõitu alustavale bussile kehtib asulas. Väljaspool asulat ole siiski tähelepanelik.",s:LS+", ühissõiduki eelistamine asulas"},
+ {id:"n3",t:"foor",q:"Süttib kollane tuli. Oled stoppjoonest piisavalt kaugel, et ohutult peatuda. Mida teed?",o:["Peatun stoppjoone ees","Kiirendan ja sõidan läbi","Sõidan edasi, sest kollane lubab","Pööran paremale"],e:"Kollane tuli keelab liikuda. Edasi sõita tohib ainult siis, kui ohutult peatuda enam ei saa.",s:LS+" § 7",v:["Foor vahetub kollaseks, kui oled ristmikust veel kaugel. Kuidas toimid?"]},
+ {id:"n4",t:"foor",q:"Foor on välja lülitatud. Sinu suunal on märk „Anna teed“. Mille järgi sõidad?",o:["Märgi järgi: annan teed ristuval teel liiklejatele","Parema käe reegli järgi","Sõidan esimesena, sest foor ei tööta","Ootan, kuni foor hakkab tööle"],e:"Kui foor ei tööta või vilgub kollane, kehtivad eesõigusmärgid.",s:LS+", liikluse korraldamise vahendite tähtsusjärjekord"},
+ {id:"n5",t:"foor",q:"Reguleerija seisab sinu poole rinnaga, käed külgedele sirutatud. Mida tohid teha?",o:["Mitte liikuda","Sõita otse","Pöörata paremale","Sõita igas suunas"],e:"Kui reguleerija on liikleja poole rinna või seljaga, on sellelt suunalt liikumine keelatud.",s:LS+" § 10"},
+ {id:"n6",t:"manoover",q:"Eessõitja näitab vasakpööret ja on asunud vasakpöördeks. Kummalt poolt tohid temast mööduda?",o:["Paremalt","Vasakult","Ei tohi mööduda","Mõlemalt"],e:"Vasakpöördeks asunud sõidukist möödutakse paremalt.",s:LS+", möödasõit"},
+ {id:"n7",t:"parkimine",q:"Kehtib märk „Parkimise keeld“. Kas tohid lühidalt peatuda, et reisija maha panna?",f:"sign:parkimiskeeld",o:["Jah","Ei","Ainult taksoga","Ainult pimedal ajal"],e:"Parkimise keeld (üks kaldkriips) lubab peatuda, näiteks reisija peale võtmiseks või maha panemiseks.",s:LKV},
+ {id:"n8",t:"parkimine",q:"Kehtib märk „Peatumise keeld“. Kas tohid lühidalt peatuda, et reisija maha panna?",f:"sign:peatumiskeeld",o:["Ei","Jah","Jah, kui ohutuled põlevad","Jah, kuni 5 minutit"],e:"Peatumise keeld (rist) keelab ka lühiajalise peatumise.",s:LKV},
+ {id:"n9",t:"jalakaija",q:"Pöörad teele, mida jalakäija ületab kohas, kus ülekäigurada pole. Kes annab teed?",o:["Mina, sest pööran teele, mida ta ületab","Jalakäija, sest ülekäigurada pole","Kumbki","See, kes on kiirem"],e:"Ülekäigukohas pole jalakäijal tavaliselt eesõigust, kuid kui juht pöörab teele, mida jalakäija ületab, peab juht andma teed.",s:LS+" § 2 p 99"},
+ {id:"n10",t:"kiirus",q:"Asulas on märk, mis lubab suurimaks kiiruseks 70 km/h. Kui kiiresti tohid seal sõita?",o:["Kuni 70 km/h, kui olud lubavad","Kuni 50 km/h, sest oled asulas","Kuni 90 km/h","Täpselt 70 km/h"],e:"Märk muudab üldist piirkiirust. Asulas võib piirkiirust märgiga tõsta kuni 90 km/h.",s:LS+" § 15 lg 2"},
+ {id:"n11",t:"manoover",q:"Mida tähendab katkendjoon kahe sõiduraja vahel?",o:["Joont tohib ületada, kui see on ohutu","Joont ei tohi ületada","Joon tähistab parkimiskohta","Joon tähistab jalgrattarada"],e:"Katkendjoont tohib ületada, kui see on ohutu. Pidevjoont ületada ei tohi.",s:LKV+" (teekattemärgised)"},
+ {id:"n12",t:"manoover",q:"Kas pidevjoont tohib möödasõiduks ületada?",o:["Ei tohi","Tohib, kui vastu ei tule kedagi","Tohib, kui eessõitja on aeglane","Tohib päeval"],e:"Pidevjoon keelab ületamise. Katkendjoont tohib ohutuse korral ületada.",s:LKV+" (teekattemärgised)"},
+ {id:"n13",t:"manoover",q:"Mis suunas sõidetakse ringristmikul?",f:"sign:ringliiklus",o:["Vastupäeva, keskmine saar jääb vasakule","Päripäeva, keskmine saar jääb paremale","Otse üle keskmise saare","Ükskõik kummas suunas"],e:"Ringristmikul liigutakse vastupäeva, nagu näitavad märgi nooled.",s:LKV},
+ {id:"n14",t:"manoover",q:"Kuidas annad märku, et lahkud ringristmikult?",o:["Parempoolse suunatulega","Vasakpoolse suunatulega","Märku pole vaja anda","Ohutuledega"],e:"Ringristmikult väljumine on parempööre, sellest antakse aegsasti märku parempoolse suunatulega.",s:LS+", märguanded"},
+ {id:"n15",t:"eesoigus",q:"Politseiauto sinu taga annab märku peatuda. Mida teed?",o:["Peatun ohutult tee paremas servas","Kiirendan","Peatun kohe sõiduraja keskel","Sõidan järgmise ristmikuni ja keeran ära"],e:"Politseiametniku märguannet peab täitma. Peatu ohutult, üldjuhul tee paremas servas.",s:LS+", liiklusjärelevalve"},
+ {id:"n16",t:"manoover",q:"Millal tohib asulas kasutada helisignaali?",o:["Ainult liiklusõnnetuse vältimiseks","Alati, kui eessõitja on aeglane","Tervitamiseks","Kui foor läheb roheliseks"],e:"Asulas tohib helisignaali kasutada ainult liiklusõnnetuse vältimiseks.",s:LS+", märguanded"},
+ {id:"n17",t:"onnetus",q:"Kas liiklusõnnetuses osalenud juht tohib enne joobe kontrolli alkoholi tarvitada?",o:["Ei","Jah, kui keegi vigastada ei saanud","Jah, närvide rahustamiseks","Jah, kui sõiduk jäi terveks"],e:"Liiklusõnnetuses osalenud juht ei tohi tarvitada alkoholi ega muid joovastavaid aineid enne joobe kontrolli.",s:LS+", liiklusõnnetuse korral tegutsemine"},
+ {id:"n18",t:"manoover",q:"Kahesuunalisel teel tahad pöörata vasakule. Kuhu asud enne pööret?",o:["Sõidutee keskjoone lähedale","Tee parema serva lähedale","Teepeenrale","Vastassuuna rajale"],e:"Kahesuunalisel teel vasakule pöörates asub juht aegsasti keskjoone lähedale.",s:LS+", pööramine",v:["Kuhu asud kahesuunalisel teel enne vasakpööret?"]},
+ {id:"n19",t:"manoover",q:"Ühesuunalisel teel tahad pöörata vasakule. Kuhu asud enne pööret?",o:["Sõidutee vasaku serva lähedale","Sõidutee parema serva lähedale","Sõidutee keskele","Pole vahet"],e:"Ühesuunalisel teel vasakule pöörates asub juht aegsasti sõidutee vasaku serva lähedale.",s:LS+", pööramine"},
+ {id:"n20",t:"jalakaija",q:"Möödud jalgratturist. Mida arvestad?",o:["Jätan piisava külgvahe, sest ratturi liikumine võib muutuda","Möödun võimalikult lähedalt, et vastassuunda mitte segada","Annan helisignaali ja möödun kiiresti","Möödun alati paremalt"],e:"Jalgrattur võib kõikuda või auke vältida. Jäta piisav külgvahe ja vajadusel oota sobivat hetke.",s:LS+", möödasõit",safe:true},
+ {id:"n21",t:"manoover",q:"Raudteeülesõidukohal on tõkkepuu üleval, kuid punased tuled vilguvad. Kas tohid sõita?",o:["Ei","Jah, sest tõkkepuu on üleval","Jah, aeglaselt","Jah, kui rongi ei paista"],e:"Vilkuv punane tuli keelab ülesõidukohale sõitmise ka siis, kui tõkkepuu on üleval.",s:LS+", raudteeülesõidukoht",safe:true},
+ {id:"n22",t:"soiduk",q:"Sõidad pimedal ajal kaugtuledega teisele autole lähedalt järele. Mida teed?",o:["Lülitan lähitulede peale","Jätan kaugtuled põlema","Lülitan sisse ainult udutuled","Vilgutan kaugtulesid"],e:"Kaugtuled pimestavad eessõitjat peeglite kaudu. Lähedalt järele sõites kasuta lähitulesid.",s:LS+", tulede kasutamine"},
+ {id:"n23",t:"ohutus",q:"Kas taksos tagaistmel sõitja peab kinnitama turvavöö?",o:["Jah","Ei","Ainult asulavälisel teel","Ainult pimedal ajal"],e:"Turvavöö peab olema kinnitatud kõigil sõitjatel, ka taksos ja tagaistmel.",s:LS+", turvavöö kasutamine",safe:true},
+ {id:"n24",t:"jalakaija",q:"Kas mootorsõidukiga tohib sõita kõnniteel?",o:["Üldjuhul ei, see on keelatud","Jah, kui sõidutee on ummikus","Jah, aeglaselt","Jah, parkimiskoha otsimiseks"],e:"Mootorsõidukiga on kõnniteel sõitmine keelatud. Erandiks on näiteks kõrvalalale sisse- ja väljasõit.",s:LS+", sõidutee kasutamine"},
+);
+
+/* ---- Intersection generator: endless right-of-way tasks, solved by the rules ---- */
+const RIGHT_OF={S:"E",E:"N",N:"W",W:"S"}, OPP={S:"N",N:"S",E:"W",W:"E"}, TURN={s:"sõidab otse",l:"pöörab vasakule",r:"pöörab paremale"};
+function pathPts(from,turn,tram){
+  const P=[]; const deg=ROT[from]; const x0=tram?120:140;
+  const add=(x,y)=>P.push(rotPt(x,y,deg));
+  if(turn==="s"){for(let y=176;y>=18;y-=6)add(x0,y)}
+  else if(turn==="r"){for(let t=0;t<=1;t+=.05){const u=1-t;add(u*u*140+2*u*t*140+t*t*176,u*u*176+2*u*t*140+t*t*140)}for(let x=180;x<=226;x+=6)add(x,140)}
+  else{for(let t=0;t<=1;t+=.05){const u=1-t;add(u*u*140+2*u*t*140+t*t*100,u*u*176+2*u*t*100+t*t*100)}for(let x=96;x>=14;x-=6)add(x,100)}
+  return P;
+}
+function conflict(a,b){const A=pathPts(a.from,a.turn,a.tram),B=pathPts(b.from,b.turn,b.tram);for(const p of A)for(const q of B)if(Math.hypot(p[0]-q[0],p[1]-q[1])<12)return true;return false}
+// does a have to give way to b? returns {y:bool, why} or null when the case is not clear-cut
+function yields(a,b,main){
+  if(main){const am=main.includes(a.from),bm=main.includes(b.from); if(am!==bm) return {y:!am,why:am?null:"main"};}
+  if(!main){ if(b.tram&&!a.tram) return {y:true,why:"tram"}; if(a.tram&&!b.tram) return {y:false}; }
+  if(OPP[a.from]===b.from){ if(a.turn==="l"&&b.turn!=="l") return {y:true,why:"left"}; if(b.turn==="l"&&a.turn!=="l") return {y:false}; return null; }
+  if(RIGHT_OF[a.from]===b.from) return {y:true,why:"right"};
+  if(RIGHT_OF[b.from]===a.from) return {y:false};
+  return null;
+}
+function reason(a,b,why,main,signs){ const A=a.nm[0].toUpperCase()+a.nm.slice(1), Bn=b.nm;
+  if(LANG==="ru"){const G=RU.gen; if(why==="main")return G.rMain(A,b.dat,signs[a.from]==="stop"); if(why==="tram")return G.rTram(a.nm); if(why==="left")return G.rLeft(A,b.dat,G.turn[b.turn]); if(why==="right")return G.rRight(a.dat,b.nm,main); return "";}
+  if(why==="main") return `${A} on kõrvalteel (märk „${signs[a.from]==="stop"?"STOP":"Anna teed"}“) ja peab andma teed peateel sõitvale ${Bn}-le.`;
+  if(why==="tram") return `Samaliigiliste teede ristmikul on trammil eesõigus, seega ${a.nm} annab teed trammile.`;
+  if(why==="left") return `Vasakule pöörav ${a.nm} annab teed vastassuunast tulevale ${Bn}-le, kes ${TURN[b.turn]}.`;
+  if(why==="right") return `${main?"Mõlemad on samal teel, seega kehtib nende vahel parema käe reegel: ":"Parema käe reegel: "}${Bn} läheneb ${a.nm}-le paremalt.`;
+  return "";
+}
+function solve(cars,main,signs){ // returns {order, steps} or null
+  const left=cars.slice(), order=[], steps=[];
+  while(left.length){
+    const free=left.filter(c=>left.every(d=>{ if(d===c||!conflict(c,d)) return true; const r=yields(c,d,main); if(!r) throw 0; return !r.y }));
+    if(free.length!==1) return null;
+    const c=free[0];
+    for(const d of left){ if(d!==c&&conflict(c,d)){ const r=yields(d,c,main); if(r&&r.y) steps.push(reason(d,c,r.why,main,signs)) } }
+    order.push(c); left.splice(left.indexOf(c),1);
+  }
+  return {order,steps};
+}
+function genCross(kind){
+  for(let tries=0;tries<400;tries++){
+    const dirs=shuffle(["S","N","W","E"]), n=kind==="x3"?3:2;
+    const cars=dirs.slice(0,n).map(d=>({from:d,turn:["s","l","r"][Math.floor(Math.random()*3)]}));
+    let main=null, signs={}, tram=false;
+    if(kind==="xm"){ main=Math.random()<.5?["N","S"]:["W","E"]; const stop=Math.random()<.3;
+      for(const d of ["N","S","W","E"]) signs[d]=main.includes(d)?"peatee":(stop?"stop":"anna");
+      if(!cars.some(c=>main.includes(c.from))||!cars.some(c=>!main.includes(c.from))) continue; }
+    if(kind==="xt"){ const tc=cars.find(c=>c.from==="N"||c.from==="S"); if(!tc) continue; tc.tram=true; tc.turn="s"; tram=true;
+      if(cars.some(c=>!c.tram&&(c.from==="N"||c.from==="S"))) continue; }
+    const letters=shuffle(["1","2","3"].slice(0,n)); const G=RU.gen, ru=LANG==="ru"; cars.forEach((c,i)=>{c.label=c.tram?"T":letters[i];c.nm=ru?(c.tram?G.tram:G.car(letters[i])):(c.tram?"tramm":"auto "+letters[i]);c.dat=ru?(c.tram?G.tramDat:G.carDat(letters[i])):c.nm});
+    if(cars.some((c,i)=>cars.some((d,j)=>j>i&&!conflict(c,d)))&&n===2) continue;
+    let sol; try{ sol=solve(cars,main,signs) }catch(e){ continue }
+    if(!sol) continue;
+    const pal=["#E39B12","#2FA35B","#9B5CD6"];
+    const fig=crossSvg({signs,tram,cars:cars.map((c,i)=>({...c,color:pal[i]}))});
+    const moves=cars.map((c,i)=>`${i?c.nm:c.nm[0].toUpperCase()+c.nm.slice(1)} ${(ru?G.turn:TURN)[c.turn]}`).join(", ")+".";
+    const ctx=ru?(main?G.ctxMain:G.ctxEq):(main?"Ristmikul on peatee ja kõrvalteed (vaata märke).":"Samaliigiliste teede ristmik, märke ega foori pole.");
+    const name=c=>c.nm[0].toUpperCase()+c.nm.slice(1);
+    let q,o;
+    if(n===3){ const cap=x=>x[0].toUpperCase()+x.slice(1); const corr=cap(sol.order.map(c=>c.nm).join(", ")); const perms=[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]].map(p=>cap(p.map(i=>cars[i].nm).join(", ")));
+      q=`${ctx} ${moves} ${ru?G.order:"Mis järjekorras sõidukid ristmiku läbivad?"}`; o=[corr,...shuffle(perms.filter(x=>x!==corr)).slice(0,3)]; }
+    else{ const first=sol.order[0], second=sol.order[1], askYield=Math.random()<.5;
+      q=`${ctx} ${moves} `+(askYield?(ru?G.whoYield:"Kumb peab teed andma?"):(ru?G.whoFirst:"Kumb sõidab esimesena?"));
+      o=askYield?[name(second),name(first),...(ru?G.oYield:["Kumbki ei pea teed andma","Mõlemad peavad peatuma"])]:[name(first),name(second),...(ru?G.oFirst:["Mõlemad korraga","See, kes jõudis ristmikule varem"])]; }
+    const src=main?LKV+"; "+LS+", eesõigus ristmikul":LS+", ristmikul sõitmine"; return {q,o,f:fig,e:sol.steps.join(" "),s:ru?trSrc(src):src};
+  }
+  return null;
+}
+/* ---- Number generators (traffic-safety physics) ---- */
+const r2=x=>Math.round(x*100)/100;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function numOpts(c,cands,unit){const s=new Set([c]);for(const x of shuffle(cands.slice()))if(s.size<4&&x>0)s.add(x);return [...s].map(x=>typeof unit==="function"?unit(x):`${String(x).replace(".",",")}${unit}`)}
+const GEN={
+  x2:()=>genCross("x2"), x3:()=>genCross("x3"), xm:()=>genCross("xm"), xt:()=>genCross("xt"),
+  g1:()=>{const v=pick([36,54,72,90,108]),m=r2(v/3.6),ru=LANG==="ru",u=ru?RU.gen.m:" m";return{q:ru?RU.gen.g1(v):`Sõidad kiirusega ${v} km/h. Kui pika maa läbib auto ühe sekundiga?`,o:numOpts(m,[m*2,m/2,v/10,v,m+10],u),e:ru?RU.gen.g1e(v,m):`Kiiruse meetrites sekundis saad, kui jagad km/h 3,6-ga: ${v} / 3,6 = ${m} m/s.`,s:ru?trSrc("Liiklusohutuse alused (füüsika)"):"Liiklusohutuse alused (füüsika)"}},
+  g2:()=>{const v=pick([36,72,108]),t=pick([1,1.5,2]),m=r2(v/3.6*t),ru=LANG==="ru",u=ru?RU.gen.m:" m",tt=String(t).replace(".",",");return{q:ru?RU.gen.g2(tt,v):`Juhi reageerimisaeg on ${tt} s ja kiirus ${v} km/h. Kui pika maa läbib auto enne, kui juht jõuab pidurit vajutada?`,o:numOpts(m,[r2(v/3.6),m*2,m/2,r2(v/10*t),m+15],u),e:ru?RU.gen.g2e(r2(v/3.6),tt,String(m).replace(".",",")):`Reageerimisteekond = kiirus (m/s) × reageerimisaeg = ${r2(v/3.6)} × ${tt} = ${String(m).replace(".",",")} m. Selle aja jooksul auto veel ei pidurda.`,s:ru?trSrc("Liiklusohutuse alused (füüsika)"):"Liiklusohutuse alused (füüsika)"}},
+  g3:()=>{const v=pick([54,72,90,108]),m=r2(2*v/3.6),ru=LANG==="ru",u=ru?RU.gen.m:" m";return{q:ru?RU.gen.g3(v):`Kui suur on kahe sekundi pikivahe kiirusel ${v} km/h?`,o:numOpts(m,[m/2,m*2,v/10,m+20],u),e:ru?RU.gen.g3e(v,m):`Kahe sekundiga läbib auto 2 × ${v} / 3,6 = ${m} m. Libedal teel jäta mitu korda rohkem.`,s:ru?trSrc("Liiklusohutuse alused (soovitus)"):"Liiklusohutuse alused (soovitus)"}},
+  g4:()=>{const k=pick([2,3]),a=pick([30,40,50]),ru=LANG==="ru";return{q:ru?RU.gen.g4(a,a*k):`Kiirus kasvab ${a} km/h pealt ${a*k} km/h peale. Mitu korda pikeneb ligikaudu pidurdusteekond?`,o:numOpts(k*k,[k,k*k*k,k+1,2*k+1],ru?(x=>`в ${x} ${[2,3,4].includes(x%10)&&!(x>10&&x<15)?"раза":"раз"}`):" korda"),e:ru?RU.gen.g4e(k):`Pidurdusteekond kasvab ligikaudu kiiruse ruudus: ${k} korda suurem kiirus annab umbes ${k}² = ${k*k} korda pikema pidurdusteekonna.`,s:ru?trSrc("Liiklusohutuse alused (füüsika)"):"Liiklusohutuse alused (füüsika)"}},
+};
+Q.push(
+ {id:"x2",t:"eesoigus",gen:"x2"},{id:"x2b",t:"eesoigus",gen:"x2"},{id:"x3",t:"eesoigus",gen:"x3"},{id:"xm",t:"eesoigus",gen:"xm"},{id:"xm2",t:"eesoigus",gen:"xm"},{id:"xt",t:"eesoigus",gen:"xt"},
+ {id:"g1",t:"kiirus",gen:"g1",safe:true},{id:"g2",t:"kiirus",gen:"g2",safe:true},{id:"g3",t:"kiirus",gen:"g3",safe:true},{id:"g4",t:"kiirus",gen:"g4",safe:true},
+);
+// Reverse sign questions: the meaning is given, pick the right sign
+for(const [id,sg] of Object.entries(SIGNS)){
+  Q.push({id:"r_"+id,t:"margid",rsign:id,q:`Milline märk tähendab: „${sg.m}“?`,v:[`Leia märk „${sg.n}“.`],e:`„${sg.n}“. ${sg.e}`,s:LKV});
+}
+function reverseSignOptions(id){
+  const me=SIGNS[id]; const twin={anna:"stop",stop:"anna"}[id]; const same=Object.keys(SIGNS).filter(k=>k!==id&&k!==twin&&SIGNS[k].g===me.g), other=Object.keys(SIGNS).filter(k=>k!==id&&k!==twin&&SIGNS[k].g!==me.g);
+  const d=shuffle(same).slice(0,3); while(d.length<3) d.push(shuffle(other.filter(x=>!d.includes(x)))[0]);
+  return ["sign:"+id,...d.map(k=>"sign:"+k)];
+}
+
+/* ============ RUSSIAN ============ */
+const RU={
+ topics:{margid:"Дорожные знаки",eesoigus:"Приоритет и перекрёстки",foor:"Светофоры и регулировщик",kiirus:"Скорость и дистанция",manoover:"Манёвры и обгон",parkimine:"Остановка и стоянка",jalakaija:"Пешеходы и велосипедисты",ohutus:"Безопасность движения",soiduk:"Автомобиль, фары и шины",onnetus:"ДТП и первая помощь"},
+ groups:{"Hoiatusmärgid":"Предупреждающие знаки","Eesõigusmärgid":"Знаки приоритета","Keelumärgid":"Запрещающие знаки","Kohustusmärgid":"Предписывающие знаки","Teavitusmärgid":"Информационные знаки"},
+ signs:{
+  anna:{n:"Уступите дорогу",m:"Вы должны уступить дорогу транспорту на пересекаемой дороге",e:"Треугольник вершиной вниз означает, что у движущихся по пересекаемой дороге есть преимущество. Останавливаться не обязательно, если можно безопасно проехать, никому не мешая."},
+  stop:{n:"STOP",m:"Вы должны остановиться и уступить дорогу транспорту на пересекаемой дороге",e:"У знака STOP всегда нужно остановиться перед стоп-линией (если её нет, перед краем пересекаемой проезжей части), даже если на дороге никого не видно, и затем уступить дорогу."},
+  peatee:{n:"Главная дорога",m:"Вы едете по главной дороге: на перекрёстках у вас преимущество перед второстепенной дорогой",e:"Жёлтый ромб с белой каймой обозначает главную дорогу. Движущиеся по второстепенной дороге должны уступить вам дорогу."},
+  peateelopp:{n:"Конец главной дороги",m:"Главная дорога заканчивается: дальше у вас нет преимущества главной дороги",e:"Перечёркнутый ромб означает конец главной дороги. На следующем перекрёстке руководствуйтесь другими знаками или правилом правой руки."},
+  sissesoit:{n:"Въезд запрещён",m:"Въезд с этой стороны запрещён всем транспортным средствам",e:"Красный круг с белой горизонтальной полосой запрещает въезд (например, на дорогу с односторонним движением со встречной стороны)."},
+  liikluskeeld:{n:"Движение запрещено",m:"Движение всех транспортных средств запрещено в обоих направлениях",e:"Пустой белый круг с красной каймой запрещает движение всех транспортных средств."},
+  peatumiskeeld:{n:"Остановка запрещена",m:"Остановка и стоянка запрещены",e:"Синий круг с красной каймой и красным крестом запрещает и остановку, и стоянку на той стороне дороги, где стоит знак."},
+  parkimiskeeld:{n:"Стоянка запрещена",m:"Стоянка запрещена, кратковременная остановка разрешена",e:"Синий круг с красной каймой и одной наклонной полосой запрещает стоянку, но остановиться (например, чтобы высадить пассажира) можно."},
+  kiirus50:{n:"Ограничение максимальной скорости",m:"Максимальная разрешённая скорость 50 км/ч",e:"Число в красном круге показывает максимальную разрешённую скорость. Это верхний предел, а не рекомендация: скорость нужно выбирать по условиям."},
+  moodasoit:{n:"Обгон запрещён",m:"Обгон механических транспортных средств запрещён",e:"Красный и чёрный автомобили в красном круге запрещают обгон в зоне действия знака."},
+  otse:{n:"Обязательное направление движения",m:"Разрешено движение только прямо",e:"Синий круглый знак с белой стрелкой обязывает ехать в направлении стрелки."},
+  ringliiklus:{n:"Круговое движение",m:"На перекрёстке движутся по кругу в направлении стрелок",e:"Три стрелки по кругу обозначают перекрёсток с круговым движением. По кругу едут против часовой стрелки, как показывают стрелки."},
+  jalgrattatee:{n:"Велосипедная дорожка",m:"Дорога предназначена для велосипедов",e:"Синий круг с белым велосипедом обозначает велосипедную дорожку. Ездить по ней на автомобиле нельзя."},
+  yhesuunaline:{n:"Дорога с односторонним движением",m:"Дорога, где движение идёт только в одном направлении",e:"Синий прямоугольник со стрелкой вверх обозначает дорогу с односторонним движением. Ехать во встречном направлении нельзя."},
+  ylekaigurada:{n:"Пешеходный переход",m:"Здесь пешеходный переход: пешеходу нужно уступить дорогу",e:"Синий квадрат с белым треугольником и пешеходом обозначает пешеходный переход. Водитель обязан уступить дорогу пешеходу, который находится на переходе или вступает на него."},
+  oueala:{n:"Жилая зона",m:"Начинается жилая зона: максимальная скорость 20 км/ч, пешеходы могут идти по всей ширине дороги",e:"Жилая зона предназначена для одновременного движения пешеходов и транспорта. Максимальная скорость 20 км/ч, а рядом с пешеходом нужно ехать со скоростью пешехода."},
+  ouealalopp:{n:"Конец жилой зоны",m:"Жилая зона заканчивается: дальше действуют обычные правила",e:"Знак жилой зоны с красной наклонной полосой обозначает её конец. Выезжающий из жилой зоны должен уступить дорогу другим участникам движения."},
+  parkla:{n:"Место стоянки",m:"Место, предназначенное для стоянки",e:"Синий квадрат с белой буквой P обозначает место стоянки (парковку)."},
+  kurv:{n:"Опасный поворот",m:"Впереди опасный поворот направо",e:"Предупреждающие знаки — треугольники с красной каймой. Этот предупреждает о крутом повороте: снижайте скорость до поворота, а не в нём."},
+  lapsed:{n:"Дети",m:"Впереди место, где на дорогу могут неожиданно выйти дети",e:"Знак предупреждает о детях (школа, детский сад, игровая площадка). Будьте особенно внимательны и готовы остановиться."},
+  metsloomad:{n:"Дикие животные",m:"На дорогу могут выйти дикие животные",e:"Знак предупреждает о диких животных (например, лосях). Особенно в сумерках будьте готовы тормозить."},
+  teetood:{n:"Дорожные работы",m:"Впереди дорожные работы",e:"Знак предупреждает о дорожных работах. Там могут быть рабочие, техника и сужения, езжайте осторожно."},
+  raudtee:{n:"Железнодорожный переезд без шлагбаума",m:"Впереди железнодорожный переезд без шлагбаума",e:"Знак предупреждает о переезде без шлагбаума. Перед рельсами убедитесь, что поезд не приближается."},
+  libe:{n:"Скользкая дорога",m:"Впереди скользкий участок дороги",e:"Знак предупреждает о скользкой дороге. Снизьте скорость, увеличьте дистанцию и избегайте резких движений."},
+  kahesuunaline:{n:"Двустороннее движение",m:"Впереди начинается участок с двусторонним движением",e:"Две встречные стрелки предупреждают, что после одностороннего движения начинается двустороннее."},
+  foorhoiatus:{n:"Светофорное регулирование",m:"Впереди участок, регулируемый светофором",e:"Знак предупреждает о светофоре, который может быть плохо виден издалека."},
+  ylekaighoiatus:{n:"Пешеходный переход (предупреждающий)",m:"Вы приближаетесь к пешеходному переходу",e:"Предупреждающий знак заранее сообщает о пешеходном переходе. Будьте готовы уступить дорогу пешеходу."},
+ },
+ signV:["Что означает этот знак?","Каково значение этого знака?","Вы видите на дороге такой знак. Что он означает?"],
+ signQ:"Что означает этот дорожный знак?",
+ rsignQ:(m)=>`Какой знак означает: «${m}»?`, rsignV:(n)=>`Найдите знак «${n}».`,
+ src:[
+  ["Liikluskorraldusvahendite ja nende kasutamise tingimuste määrus (liiklusmärgid)","Постановление о средствах организации дорожного движения (дорожные знаки)"],
+  ["Mootorsõiduki ja selle haagise tehnonõuded ning nõuded varustusele (määrus)","Постановление о технических требованиях к транспортному средству и его оснащению"],
+  ["ristmikul sõitmine (parema käe reegel)","проезд перекрёстков (правило правой руки)"],["trammi eesõigus ristmikul","преимущество трамвая на перекрёстке"],["eesõigus ristmikul","преимущество на перекрёстке"],
+  ["parema käe reegel","правило правой руки"],["vasakpöörde nõuded","требования к левому повороту"],["kõrvalalalt teele sõitmine","выезд на дорогу с прилегающей территории"],
+  ["ühissõiduki eelistamine asulas","приоритет общественного транспорта в населённом пункте"],["operatiivsõidukile teeandmine","уступить дорогу оперативному транспорту"],
+  ["liikluse korraldamise vahendite tähtsusjärjekord","очерёдность средств организации движения"],["sõidukiiruse valik","выбор скорости"],
+  ["Liiklusohutuse alused","Основы безопасности движения"],["(füüsika)","(физика)"],["(soovitus)","(рекомендация)"],
+  ["möödasõidu keelud","запреты обгона"],["möödasõit","обгон"],["märguanded","сигналы"],["tagasipööre","разворот"],["ümberrivistumine","перестроение"],
+  ["raudteeülesõidukoht","железнодорожный переезд"],["pööramine","повороты"],["kiirteel sõitmine","движение по автомагистрали"],["tagurdamine","движение задним ходом"],
+  ["peatumise keelud","запреты остановки"],["peatumine ja parkimine","остановка и стоянка"],["sõitjate kohustused","обязанности пассажиров"],["juhi kohustused","обязанности водителя"],
+  ["ülekäigurajal sõitmine","проезд пешеходных переходов"],["jalakäija kohustused","обязанности пешехода"],["juhi keelud","запреты для водителя"],
+  ["turvavöö kasutamine","использование ремня безопасности"],["laste sõidutamine","перевозка детей"],["tulede kasutamine","использование световых приборов"],
+  ["sundpeatumine","вынужденная остановка"],["liiklusõnnetuse korral tegutsemine","действия при ДТП"],["Häirekeskus","Центр тревоги (Häirekeskus)"],
+  ["Esmaabi alused","Основы первой помощи"],["(teekattemärgised)","(дорожная разметка)"],["liiklusjärelevalve","надзор за движением"],
+  ["sõidutee kasutamine","использование проезжей части"],["ristmikul sõitmine","проезд перекрёстков"],["pikivahe","дистанция"],
+  ["Liiklusseadus","Закон о дорожном движении (Liiklusseadus)"],
+ ],
+ q:{
+ e1:{q:"Перекрёсток равнозначных дорог, знаков и светофора нет. Какой автомобиль проедет первым?",o:["Автомобиль 2","Автомобиль 1","Оба одновременно","Тот, кто подъехал к перекрёстку раньше"],e:"На перекрёстке равнозначных дорог водитель уступает дорогу транспорту, приближающемуся справа (правило правой руки). Для автомобиля 1 автомобиль 2 находится справа.",v:["Знаков и светофора нет. Какой автомобиль проедет перекрёсток первым?"]},
+ e2:{q:"Перекрёсток равнозначных дорог. Автомобиль 1 поворачивает налево, автомобиль 2 едет прямо во встречном направлении. Кто проедет первым?",o:["Автомобиль 2","Автомобиль 1","Автомобиль 1, потому что он включил указатель поворота","Никто не должен уступать"],e:"Поворачивающий налево водитель должен уступить дорогу встречному транспорту, движущемуся прямо или направо. Указатель поворота преимущества не даёт.",v:["Знаков нет. Автомобиль 1 хочет повернуть налево, навстречу прямо едет автомобиль 2. Кто едет раньше?"]},
+ e3:{q:"Главная дорога идёт с севера на юг. Автомобиль 1 выезжает со второстепенной дороги (знак «Уступите дорогу»), автомобиль 2 едет по главной. Кто проедет первым?",o:["Автомобиль 2, потому что он на главной дороге","Автомобиль 1, потому что автомобиль 2 приближается к нему слева","Оба одновременно","Автомобиль 1, потому что он подъехал раньше"],e:"Знак «Уступите дорогу» обязывает уступить дорогу движущимся по главной дороге. Правило правой руки действует только на перекрёстке равнозначных дорог.",v:["Дорога север–юг главная. Автомобиль 1 стоит перед знаком «Уступите дорогу», автомобиль 2 едет по главной. Кто проезжает раньше?"]},
+ e4:{q:"Перекрёсток равнозначных дорог, все едут прямо. В каком порядке транспортные средства проедут перекрёсток?",o:["Автомобиль 3, автомобиль 1, автомобиль 2","Автомобиль 1, автомобиль 2, автомобиль 3","Автомобиль 2, автомобиль 1, автомобиль 3","Автомобиль 3, автомобиль 2, автомобиль 1"],e:"У автомобиля 3 справа никого нет, поэтому он едет первым. Затем автомобиль 1, справа от которого был автомобиль 3. Последним автомобиль 2, справа от которого автомобиль 1.",v:["К перекрёстку без знаков одновременно подъехали три автомобиля, все едут прямо. В каком порядке они проедут?"]},
+ e5:{q:"Перекрёсток равнозначных дорог. Трамвай (T) едет прямо, автомобиль 1 едет прямо. Кто проедет первым?",o:["Трамвай","Автомобиль, потому что трамвай приближается к нему слева","Оба одновременно","Тот, кто подаст звуковой сигнал"],e:"На перекрёстке равнозначных дорог трамвай имеет преимущество перед безрельсовым транспортом независимо от того, с какой стороны он приближается.",v:["К перекрёстку без знаков приближаются трамвай и автомобиль. Кто едет первым?"]},
+ e6:{q:"Перекрёсток равнозначных дорог. Автомобиль 1 поворачивает направо, автомобиль 2 со встречного направления поворачивает налево на ту же дорогу. Кто проедет первым?",o:["Автомобиль 1","Автомобиль 2","Оба одновременно, потому что едут в разные полосы","Автомобиль 2, потому что он с главной дороги"],e:"Поворачивающий налево автомобиль 2 должен уступить дорогу встречному транспорту, движущемуся прямо или направо.",v:["На перекрёстке без знаков автомобиль 1 поворачивает направо, а встречный автомобиль 2 налево, оба на одну дорогу. Кто едет раньше?"]},
+ e7:{q:"Вы выезжаете со двора (с прилегающей территории) на дорогу. Кому вы должны уступить дорогу?",o:["Всем участникам движения на дороге, в том числе пешеходам","Только транспорту справа","Только пешеходам","Никому, если включён указатель поворота"],e:"Водитель, выезжающий на дорогу с прилегающей территории (двор, парковка, АЗС), должен уступить дорогу всем участникам движения на дороге.",v:["Вы выезжаете с парковки на дорогу. Кого вы должны пропустить?"]},
+ e8:{q:"Перед перекрёстком знак STOP, на пересекаемой дороге нет ни одного транспортного средства. Что вы делаете?",o:["Останавливаюсь перед стоп-линией и затем еду дальше","Снижаю скорость и еду без остановки","Останавливаюсь, только если кто-то приближается","Подаю звуковой сигнал и еду дальше"],e:"У знака STOP нужно останавливаться всегда, даже если пересекаемая дорога пуста.",v:["Перед перекрёстком красный восьмиугольный знак STOP. Пересекаемая дорога пуста. Как вы поступите?"]},
+ e9:{q:"На въезде на перекрёсток с круговым движением стоит знак «Уступите дорогу». По кругу едет автомобиль. Что вы делаете?",o:["Уступаю дорогу автомобилю на кругу","Еду первым, потому что автомобиль слева от меня","Еду, если включу правый указатель поворота","Едущий по кругу должен уступить мне"],e:"Знак «Уступите дорогу» на въезде на круговой перекрёсток обязывает уступить дорогу транспорту, движущемуся по кругу.",v:["Вы приближаетесь к круговому перекрёстку со знаком «Уступите дорогу». На кругу другой автомобиль. Как поступите?"]},
+ e10:{q:"В населённом пункте от обозначенной остановки начинает движение автобус, подавая сигнал указателем поворота. Что вы должны сделать?",o:["Дать автобусу начать движение, при необходимости снизив скорость","Продолжить движение, потому что у меня преимущество","Подать звуковой сигнал","Объехать его по встречной полосе"],e:"В населённом пункте водитель должен уступить дорогу автобусу, который начинает движение от обозначенной остановки и подаёт сигнал указателем поворота.",v:["В городе автобус на остановке включил левый указатель поворота и начинает движение. Что вы делаете?"]},
+ e11:{q:"Сзади к вам приближается машина с синим проблесковым маячком и специальным звуковым сигналом. Что вы делаете?",o:["Уступаю дорогу, при необходимости останавливаюсь у края дороги","Ускоряюсь, чтобы не мешать","Еду как прежде, потому что у меня зелёный","Резко торможу посреди полосы"],e:"Оперативному транспорту с синим маячком и специальным звуковым сигналом нужно уступить дорогу и при необходимости остановиться.",v:["В зеркале вы видите скорую помощь с синим маячком и сиреной. Что вы делаете?"]},
+ e12:{q:"Что показывает табличка под знаком главной дороги, на которой одна линия схемы перекрёстка толще остальных?",o:["Направление главной дороги на этом перекрёстке","Маршрут объезда","Место дорожных работ","Обязательное направление для всех"],e:"Табличка «Направление главной дороги» показывает, куда главная дорога поворачивает на перекрёстке.",v:["Под знаком главной дороги табличка с перекрёстком и одной толстой линией. Что показывает эта линия?"]},
+ f1:{q:"Что означает мигающий жёлтый сигнал светофора?",o:["Перекрёсток нерегулируемый, руководствуюсь знаками и правилами приоритета","Нужно остановиться, как при красном","У меня всегда преимущество","Светофор сейчас переключится на зелёный"],e:"Мигающий жёлтый предупреждает об опасности: светофор не регулирует движение, действуют знаки и правила приоритета.",v:["На перекрёстке мигает жёлтый сигнал светофора. Как проехать перекрёсток?"]},
+ f2:{q:"Загорается жёлтый, но вы так близко к стоп-линии, что безопасно остановиться не сможете. Что вы делаете?",o:["Могу продолжить движение","В любом случае резко торможу","Сдаю назад за стоп-линию","Останавливаюсь посреди перекрёстка"],e:"Жёлтый сигнал запрещает движение, кроме случая, когда водитель уже не может безопасно остановиться.",v:["Зелёный сменяется жёлтым, когда вы у самой стоп-линии и резкое торможение было бы опасным. Что делаете?"]},
+ f3:{q:"Зелёный сигнал светофора начинает мигать. Что это значит?",o:["Зелёный скоро закончится и загорится жёлтый","Нужно немедленно остановиться","Светофор неисправен","Можно повернуть и по красной стрелке"],e:"Мигающий зелёный сообщает, что время разрешающего сигнала скоро закончится.",v:["Зелёный сигнал светофора мигает. О чём он сообщает?"]},
+ f4:{q:"Горят одновременно красный и жёлтый. Что это значит?",o:["Скоро загорится зелёный, но двигаться ещё нельзя","Можно начинать движение","Светофор выключен","Нужно быстро покинуть перекрёсток"],e:"Красный вместе с жёлтым сообщают о скором включении зелёного. Движение по-прежнему запрещено.",v:["Рядом с красным загорается и жёлтый. Что это означает?"]},
+ f5:{q:"Горит красный, а в дополнительной секции горит зелёная стрелка направо. Что вы можете сделать?",o:["Повернуть направо, уступив дорогу движущимся с других направлений и пешеходам","Ехать прямо","Повернуть направо, потому что у меня преимущество перед всеми","Ничего, потому что горит красный"],e:"Зелёная стрелка в дополнительной секции разрешает движение в направлении стрелки, но водитель должен уступить дорогу движущимся с других направлений.",v:["Горит красный, но в дополнительной секции загорается зелёная стрелка направо. Как поступите?"]},
+ f6:{q:"Регулировщик поднимает руку вверх. Что это значит?",o:["Движение запрещено всем (кроме тех, кто не может безопасно остановиться)","Все могут двигаться","Двигаться могут только пешеходы","Можно ехать только прямо"],e:"Поднятая вверх рука запрещает движение всем участникам, как жёлтый сигнал светофора.",v:["Регулировщик держит руку поднятой. Что это значит для участников движения?"]},
+ f7:{q:"Регулировщик стоит к вам боком, руки опущены или вытянуты в стороны. Что вам разрешено?",o:["Ехать прямо и направо","Только поворачивать налево","Не двигаться","Развернуться"],e:"Если регулировщик стоит к участнику движения боком (руки в стороны или опущены), он разрешает ехать прямо и направо. Пешеходы могут переходить за его спиной и перед грудью.",v:["Регулировщик стоит к вам боком, руки опущены. Куда вам можно ехать?"]},
+ f8:{q:"На перекрёстке работает светофор, а регулировщик подаёт противоположные сигналы. Чему вы подчиняетесь?",o:["Регулировщику","Светофору","Дорожным знакам","Правилу правой руки"],e:"Сигналы регулировщика имеют приоритет над светофором, знаками и разметкой.",v:["Светофор разрешает ехать, а регулировщик запрещает. Кого слушаете?"]},
+ f9:{q:"На перекрёстке знак «Уступите дорогу», но светофор показывает вам зелёный. Чему вы следуете?",o:["Светофору","Знаку","Обоим: должен остановиться","Ни одному, действует правило правой руки"],e:"Сигнал светофора имеет приоритет над знаками приоритета. Знаки действуют, если светофор выключен или мигает жёлтым.",v:["Вам горит зелёный, но на вашем направлении есть и знак «Уступите дорогу». По чему вы едете?"]},
+ f10:{q:"Горит зелёный, вы поворачиваете налево. Навстречу прямо едет автомобиль. Кто уступает дорогу?",o:["Я","Встречный автомобиль","Никто, зелёный разрешает всем","Тот, кто медленнее"],e:"И при зелёном сигнале поворачивающий налево должен уступить дорогу встречным, едущим прямо и направо.",v:["У вас зелёный, вы хотите повернуть налево. Навстречу прямо едет другой автомобиль. Кто должен уступить?"]},
+ k1:{q:"Какова максимальная разрешённая скорость в населённом пункте, если знаки не указывают иное?",o:["50 км/ч","40 км/ч","60 км/ч","70 км/ч"],e:"На дороге в населённом пункте максимальная разрешённая скорость 50 км/ч.",v:["Вы едете по городу, знаков ограничения скорости нет. С какой максимальной скоростью можно ехать?"]},
+ k2:{q:"Какова максимальная разрешённая скорость вне населённого пункта, если знаки не указывают иное?",o:["90 км/ч","100 км/ч","110 км/ч","80 км/ч"],e:"Вне населённого пункта максимальная разрешённая скорость 90 км/ч. Знаком Транспортный департамент может её повысить в зависимости от условий.",v:["Вы едете по шоссе вне населённого пункта, знака ограничения нет. Какова максимальная скорость?"]},
+ k3:{q:"Какова максимальная разрешённая скорость в жилой зоне?",o:["20 км/ч","10 км/ч","30 км/ч","Всегда скорость пешехода"],e:"В жилой зоне максимальная скорость 20 км/ч. Рядом с пешеходом можно ехать только со скоростью пешехода.",v:["Вы едете по жилой зоне. Какова ваша максимальная разрешённая скорость?"]},
+ k4:{q:"Какова максимальная разрешённая скорость при буксировке другого транспортного средства?",o:["50 км/ч","30 км/ч","70 км/ч","90 км/ч"],e:"При буксировке максимальная разрешённая скорость 50 км/ч.",v:["Вы буксируете неисправный автомобиль. С какой скоростью можно ехать?"]},
+ k5:{q:"Может ли в населённом пункте знак разрешать скорость выше 50 км/ч?",o:["Да, до 90 км/ч","Нет, в населённом пункте всегда до 50 км/ч","Да, до 120 км/ч","Только ночью"],e:"Местное самоуправление может в зависимости от условий повысить максимальную скорость в населённом пункте до 90 км/ч.",v:["Может ли в городе знаком быть установлено ограничение выше 50 км/ч?"]},
+ k6:{q:"Какую наибольшую скорость Транспортный департамент может разрешить знаком вне населённого пункта?",o:["120 км/ч","110 км/ч","130 км/ч","100 км/ч"],e:"Вне населённого пункта максимальную скорость можно повысить до 120 км/ч. Летом на многих шоссе действует 100 или 110 км/ч, зимой ниже.",v:["Какую максимальную скорость можно разрешить знаком вне населённого пункта?"]},
+ k7:{q:"Знак разрешает 90 км/ч, но густой туман и плохая видимость. С какой скоростью вы едете?",o:["Так, чтобы успеть остановиться в пределах видимого участка дороги","90 км/ч, раз знак разрешает","Не менее 70 км/ч, чтобы не мешать движению","90 км/ч с аварийной сигнализацией"],e:"Водитель должен выбирать скорость по видимости, состоянию дороги и движению. Ограничение скорости — верхний предел, а не рекомендация.",v:["Идёт сильный снег, видимость плохая, а знак разрешает 90 км/ч. Как вы выбираете скорость?"]},
+ k8:{q:"Из чего состоит остановочный путь?",o:["Из пути за время реакции и тормозного пути","Только из тормозного пути","Из тормозного пути и дистанции","Из времени реакции и дистанции"],e:"Остановочный путь — расстояние от момента, когда водитель заметил опасность, до полной остановки: путь за время реакции плюс тормозной путь.",v:["Остановочный путь — сумма двух частей. Каких?"]},
+ k9:{q:"Как изменится тормозной путь, если скорость увеличится вдвое (например, 40 → 80 км/ч)?",o:["Примерно в четыре раза длиннее","В два раза длиннее","Останется тем же","Вдвое короче"],e:"Тормозной путь растёт примерно пропорционально квадрату скорости: вдвое большая скорость даёт примерно вчетверо более длинный тормозной путь."},
+ k10:{q:"Какой должна быть дистанция до движущегося впереди транспорта?",o:["Такой, чтобы при резком торможении впереди идущего я успел остановиться без столкновения","Ровно 10 метров","Длина одного автомобиля","Дистанция не важна, если тормоза исправны"],e:"Закон требует дистанцию, позволяющую избежать столкновения. Практическое правило на сухой дороге — не менее 2 секунд, на скользкой дистанцию нужно увеличить в несколько раз.",v:["Какую дистанцию нужно держать до впереди идущего автомобиля?"]},
+ k11:{q:"Какова рекомендуемая минимальная дистанция на сухой дороге, если измерять её во времени?",o:["Около 2 секунд","Около 0,5 секунды","Около 10 секунд","Около 1 минуты"],e:"Правило двух секунд: когда впереди идущий проезжает какую-то точку, вы должны доехать до неё примерно через 2 секунды. На мокрой и скользкой дороге оставляйте больше.",v:["Сколько секунд на сухой дороге должно быть как минимум между вами и впереди идущим?"]},
+ k12:{q:"Какова максимальная разрешённая скорость мопеда?",o:["45 км/ч","25 км/ч","50 км/ч","60 км/ч"],e:"Максимальная разрешённая скорость мопеда 45 км/ч.",v:["С какой скоростью можно ехать на мопеде?"]},
+ m1:{q:"С какой стороны, как правило, разрешено обгонять?",o:["Слева","Справа","С обеих сторон","Справа, если дорога широкая"],e:"Обгон выполняется слева. Справа можно обгонять транспорт, водитель которого подал сигнал левого поворота и занял положение для поворота налево.",v:["С какой стороны обычно выполняется обгон?"]},
+ m2:{q:"Вас обгоняет другое транспортное средство. Чего вам делать нельзя?",o:["Увеличивать скорость или иным образом мешать обгону","Держаться своей полосы","Ехать с прежней скоростью","Смотреть в зеркало"],e:"Водитель, которого обгоняют, не должен увеличивать скорость или иным образом препятствовать обгону.",v:["Другой автомобиль начинает вас обгонять. Чего делать нельзя?"]},
+ m3:{q:"Где обгон запрещён?",o:["На железнодорожном переезде","На длинном прямом участке вне населённого пункта","На двусторонней дороге с хорошей видимостью","На автомагистрали"],e:"На железнодорожном переезде обгон запрещён. Запрещён он и, например, на нерегулируемом пешеходном переходе и в местах с плохой видимостью.",v:["В каком месте запрещён обгон другого транспортного средства?"]},
+ m4:{q:"Даёт ли включённый указатель поворота вам преимущество?",o:["Нет, он только сообщает другим о намерении","Да, всегда","Да, если включить его минимум на 3 секунды","Только на круговом перекрёстке"],e:"Указатель поворота нужно включать заблаговременно до манёвра, но преимущества он не даёт.",v:["Вы включили указатель поворота. Даёт ли это вам преимущество перед другими?"]},
+ m5:{q:"Где запрещён разворот?",o:["На железнодорожном переезде","На широкой улице в городе","На перекрёстке равнозначных дорог","На парковке"],e:"Разворот запрещён, в частности, на железнодорожном переезде, в тоннеле и в местах с ограниченной видимостью.",v:["В каком месте нельзя разворачиваться?"]},
+ m6:{q:"Вы перестраиваетесь в соседнюю полосу. По ней в том же направлении едет другой автомобиль. Кто уступает дорогу?",o:["Я, перестраивающийся","Едущий по соседней полосе","Тот, кто медленнее","Никто, ведь я подал сигнал"],e:"Перестраивающийся должен уступить дорогу транспорту, движущемуся в том же направлении по соседней полосе.",v:["Вы меняете полосу. В соседней полосе в том же направлении едет другой автомобиль. Кто должен уступить?"]},
+ m7:{q:"Два автомобиля одновременно перестраиваются навстречу друг другу в одну полосу. Кто уступает дорогу?",o:["Левый уступает правому","Правый уступает левому","Уступает тот, кто медленнее","Уступает более крупный автомобиль"],e:"При одновременном перестроении водитель слева уступает дорогу водителю справа.",v:["Два автомобиля в соседних полосах одновременно перестраиваются друг к другу. Кто уступает?"]},
+ m8:{q:"На железнодорожном переезде опускается шлагбаум и мигают красные огни. Что вы делаете?",o:["Останавливаюсь и не въезжаю на переезд","Быстро проезжаю, пока шлагбаум не закрылся","Проезжаю, если поезда не видно","Объезжаю шлагбаум по встречной полосе"],e:"Мигающие красные огни и опускающийся или закрытый шлагбаум запрещают въезд на переезд.",v:["На переезде мигают красные огни и начинает опускаться шлагбаум. Как поступите?"]},
+ m9:{q:"Что нужно сделать перед поворотом направо?",o:["Заранее занять положение у правого края дороги и включить указатель поворота","Занять середину дороги","Включить указатель только во время поворота","Ускориться, чтобы быстрее закончить поворот"],e:"Перед поворотом направо водитель заранее занимает положение у правого края проезжей части и подаёт сигнал указателем поворота.",v:["Вы собираетесь повернуть направо. Как к этому подготовиться?"]},
+ m10:{q:"Что запрещено на автомагистрали?",o:["Разворот и движение задним ходом","Езда по левой полосе для обгона","Езда со скоростью 90 км/ч","Использование указателя поворота"],e:"На автомагистрали запрещены разворот, движение задним ходом и въезд в разрывы разделительной полосы.",v:["Чего нельзя делать на автомагистрали?"]},
+ m11:{q:"Вы сдаёте назад и плохо видите, что за автомобилем. Что следует сделать?",o:["Убедиться в безопасности, при необходимости воспользоваться помощью другого человека","Быстро сдать назад, чтобы не мешать долго","Положиться только на звуковой сигнал","Сдавать назад с аварийной сигнализацией"],e:"Двигаясь задним ходом, водитель должен убедиться в безопасности и при необходимости воспользоваться помощью другого человека.",v:["Вы сдаёте назад, видимость сзади плохая. Как поступите?"]},
+ p1:{q:"Чем отличаются знаки «Остановка запрещена» и «Стоянка запрещена»?",o:["При запрете стоянки можно ненадолго остановиться, при запрете остановки — нет","Ничем","Запрет остановки действует только ночью","Запрет стоянки действует только для грузовиков"],e:"Запрет остановки (крест) запрещает и кратковременную остановку. Запрет стоянки (одна полоса) разрешает остановиться, например, для посадки и высадки пассажиров.",v:["Чем знак «Стоянка запрещена» отличается от знака «Остановка запрещена»?"]},
+ p2:{q:"Насколько близко к пешеходному переходу можно остановиться перед ним?",o:["Не ближе 5 м","Не ближе 1 м","Прямо перед переходом","Не ближе 50 м"],e:"Остановка запрещена на пешеходном переходе и ближе 5 м перед ним, чтобы стоящий автомобиль не закрывал пешеходов.",v:["За сколько метров до пешеходного перехода запрещена остановка?"]},
+ p3:{q:"Где остановка запрещена?",o:["На железнодорожном переезде","На парковке","На обочине, если знак разрешает","У правого края дороги в населённом пункте"],e:"Остановка запрещена, в частности, на железнодорожном переезде, в тоннеле и на пешеходном переходе.",v:["В каком месте нельзя останавливаться?"]},
+ p4:{q:"В населённом пункте на улице с односторонней проезжей частью вы хотите остановиться. У какого края можно?",o:["У правого или левого края","Только у правого края","Только у левого края","Только посередине проезжей части"],e:"Обычно останавливаются у правого края, но в населённом пункте на дороге с односторонней проезжей частью можно остановиться и у левого края.",v:["В городе улица с односторонним движением. Где можно остановиться?"]},
+ p5:{q:"Вы выходите из стоящего автомобиля через левую дверь. Что вы должны сделать?",o:["Убедиться, что открывание двери не создаёт опасности, например велосипедисту","Быстро открыть дверь, чтобы не мешать движению","Подать звуковой сигнал","Ничего особенного"],e:"Дверь автомобиля можно открывать, только если это не создаёт опасности и помех другим участникам движения.",v:["Вы открываете дверь водителя припаркованного автомобиля со стороны дороги. Что нужно сделать?"]},
+ p6:{q:"Что нужно сделать, прежде чем оставить автомобиль и уйти?",o:["Включить стояночный тормоз и принять меры, чтобы автомобиль не начал двигаться сам","Оставить двигатель работать","Оставить без стояночного тормоза на передаче","Включить дальний свет"],e:"Перед тем как покинуть автомобиль, водитель должен сделать так, чтобы он не мог самопроизвольно двинуться и им не мог воспользоваться посторонний.",v:["Вы оставляете автомобиль на улице и уходите. Что нужно сделать заранее?"]},
+ p7:{q:"Насколько близко к перекрёстку можно остановиться?",o:["Не ближе 5 м от края пересекаемой проезжей части","Прямо на перекрёстке, если включена аварийная сигнализация","Не ближе 1 м","На любом расстоянии"],e:"Остановка запрещена на перекрёстке и ближе 5 м от края пересекаемой проезжей части.",v:["На каком расстоянии от края пересекаемой проезжей части нужно остановиться?"]},
+ j1:{q:"На нерегулируемый пешеходный переход вступает пешеход. Что вы делаете?",o:["Уступаю дорогу пешеходу","Еду дальше, раз я уже близко","Сигналю и еду","Уступаю только ребёнку"],e:"Водитель обязан уступить дорогу пешеходу, который находится на переходе или вступает на него.",v:["Пешеход вступает на нерегулируемый переход. Как вы поступите?"]},
+ j2:{q:"Автомобиль в соседней полосе остановился перед пешеходным переходом. Что вы должны сделать?",o:["Остановиться или снизить скорость и продолжить, только убедившись, что на переходе нет пешехода","Быстро объехать","Объехать, ведь уступает тот, кто стоит","Подать звуковой сигнал"],e:"Остановившийся автомобиль может закрывать пешехода. Продолжать движение можно, только убедившись, что на переходе нет пешеходов.",v:["Автомобиль в соседней полосе остановился перед переходом. Что вы делаете?"]},
+ j3:{q:"Пешеход переходит дорогу в месте перехода без разметки, вы едете прямо. У кого преимущество?",o:["У водителя","У пешехода","У того, кто справа","У обоих"],e:"В месте перехода без разметки у пешехода нет преимущества перед водителем. Исключение: если водитель поворачивает на дорогу, которую переходит пешеход, он должен уступить.",v:["Пешеход переходит дорогу там, где нет пешеходного перехода, а вы едете прямо. У кого преимущество?"]},
+ j4:{q:"Вы поворачиваете направо, а пересекаемую дорогу, на которую вы поворачиваете, переходит пешеход. Что вы делаете?",o:["Уступаю дорогу пешеходу","Проезжаю раньше пешехода","Сигналю","Объезжаю пешехода широкой дугой"],e:"При повороте водитель должен уступить дорогу пешеходу, переходящему проезжую часть, на которую он поворачивает.",v:["Вы поворачиваете направо на перекрёстке. Дорогу, куда вы поворачиваете, переходит пешеход. Что делаете?"]},
+ j5:{q:"Вы поворачиваете направо через велосипедную дорожку, по которой прямо едет велосипедист. Кто уступает дорогу?",o:["Я","Велосипедист","Тот, кто медленнее","Никто"],e:"Поворачивающий водитель должен уступить дорогу велосипедисту, едущему прямо по велодорожке.",v:["Поворачивая направо, вы пересекаете велодорожку, по которой прямо едет велосипедист. Кто уступает?"]},
+ j6:{q:"По дороге идёт пешеход с белой тростью. Что это означает?",o:["Это человек с нарушением зрения, нужно быть особенно осторожным и уступить ему дорогу","Это регулировщик","Это дорожный рабочий","Ничего особенного"],e:"Белая трость обозначает человека с нарушением зрения. Водитель должен быть особенно внимателен и уступить ему дорогу.",v:["У дороги стоит человек с белой тростью. Что это значит?"]},
+ j7:{q:"Почему пешеходу в тёмное время суток нужен светоотражатель?",o:["В свете ближних фар пешехода со светоотражателем видно гораздо дальше","Светоотражатель нужен только детям","Светоотражатель заменяет пешеходный переход","Светоотражатель даёт пешеходу преимущество"],e:"Тёмно одетого пешехода без светоотражателя водитель замечает в свете ближних фар только очень близко. Со светоотражателем — в несколько раз дальше.",v:["Почему пешеходу в темноте важен светоотражатель?"]},
+ j8:{q:"В жилой зоне пешеход идёт посередине дороги. Что вы делаете?",o:["Еду со скоростью пешехода и готов остановиться","Сигналю, чтобы он ушёл на тротуар","Объезжаю его на 20 км/ч","Еду обратно"],e:"В жилой зоне пешеход может идти по всей ширине дороги. Рядом с пешеходом можно ехать только со скоростью пешехода.",v:["В жилой зоне пешеход идёт посередине проезжей части. Как вы поступите?"]},
+ j9:{q:"Вы приближаетесь к стоящему автобусу, из которого выходят дети. Что вы делаете?",o:["Снижаю скорость и готов остановиться","Сигналю и проезжаю мимо","Быстро проезжаю мимо","Еду с прежней скоростью"],e:"Дети могут неожиданно выбежать на дорогу из-за автобуса. Снизьте скорость и будьте готовы остановиться.",v:["Из остановившегося автобуса выходят дети. Как вы проедете мимо?"]},
+ o1:{q:"С какого содержания алкоголя водитель механического транспортного средства считается находящимся в состоянии опьянения?",o:["0,20 промилле в крови или 0,10 мг/л в выдыхаемом воздухе","0,50 промилле в крови","1,5 промилле в крови","Любой запах алкоголя"],e:"Водитель механического транспортного средства находится в состоянии опьянения, если в его крови 0,20 промилле алкоголя или больше либо в выдыхаемом воздухе 0,10 мг/л или больше. Надёжнее всего не пить совсем.",v:["Какое содержание алкоголя означает состояние опьянения водителя?"]},
+ o2:{q:"Вечером вы пили алкоголь. Что ускоряет его выведение из организма?",o:["Только время, ничего другое не ускоряет","Крепкий кофе","Холодный душ","Двухчасовой сон"],e:"Алкоголь расщепляется в организме равномерно, ускорить это нельзя. Утром в крови может оставаться остаточный алкоголь.",v:["Как быстрее вывести выпитый алкоголь из организма?"]},
+ o3:{q:"Во время езды вы чувствуете усталость и зеваете. Что вы делаете?",o:["Останавливаюсь в безопасном месте и отдыхаю","Открываю окно и еду дальше","Делаю музыку громче","Еду быстрее, чтобы скорее доехать"],e:"Усталость замедляет реакцию, как алкоголь. Единственное эффективное средство — остановиться и отдохнуть.",v:["Во время езды клонит в сон. Что вы делаете?"]},
+ o4:{q:"Можно ли во время езды разговаривать, держа телефон в руке?",o:["Нет, телефоном в руке пользоваться нельзя","Да, если разговор короткий","Да, только в населённом пункте","Да, в пробке"],e:"Во время движения запрещено пользоваться телефоном, который держат в руке. Устройство громкой связи тоже отвлекает внимание.",v:["Можно ли за рулём держать телефон в руке и разговаривать?"]},
+ o5:{q:"Кто в легковом автомобиле должен пристёгиваться ремнём безопасности?",o:["Все пассажиры, в том числе на заднем сиденье","Только водитель","Водитель и пассажир спереди","Только вне населённого пункта"],e:"Ремень безопасности должен быть пристёгнут у всех, кто едет в автомобиле, и спереди, и сзади.",v:["Кому нужно пристёгиваться ремнём безопасности в легковом автомобиле?"]},
+ o6:{q:"Можно ли устанавливать детское автокресло спинкой вперёд (ребёнок лицом назад) на переднее сиденье с включённой подушкой безопасности?",o:["Нет","Да","Да, если ребёнку больше года","Да, в коротких поездках"],e:"Раскрывающаяся подушка безопасности может тяжело травмировать ребёнка. Кресло, в котором ребёнок сидит спиной вперёд, нельзя ставить на сиденье с включённой подушкой.",v:["Ребёнок сидит в кресле спиной по ходу движения. Можно ли ставить кресло на переднее сиденье с включённой подушкой?"]},
+ o7:{q:"Можно ли везти маленького ребёнка в автомобиле на руках?",o:["Нет, ребёнок должен быть пристёгнут удерживающим устройством по росту и весу","Да, если поездка короткая","Да, на заднем сиденье","Да, если взрослый пристёгнут"],e:"Ребёнка нужно пристегнуть удерживающим устройством, подходящим по росту и весу. При столкновении никто не удержит ребёнка на руках.",v:["Можно ли в короткой поездке взять маленького ребёнка на руки?"]},
+ o8:{q:"На мокрой дороге начинается аквапланирование (шины теряют сцепление). Что вы делаете?",o:["Отпускаю педаль газа и держу руль прямо, резко не торможу","Тормозу изо всех сил","Резко поворачиваю руль","Добавляю газ"],e:"При аквапланировании отпустите газ и держите руль прямо, пока шины снова не получат контакт с дорогой.",v:["На мокрой дороге шины теряют сцепление и автомобиль скользит по воде. Что делаете?"]},
+ o9:{q:"Как тормозить в экстренной ситуации на автомобиле с ABS?",o:["Нажимаю на тормоз изо всех сил и держу","Нажимаю на тормоз прерывисто","Торможу только стояночным тормозом","Выключаю двигатель"],e:"ABS не даёт колёсам заблокироваться и сохраняет управляемость. Тормоз нужно нажать изо всех сил и держать.",v:["У вашего автомобиля есть ABS. Как пользоваться тормозом при экстренном торможении?"]},
+ o10:{q:"Вас ослепляют фары встречного автомобиля. Что вы делаете?",o:["Снижаю скорость и смотрю на правый край дороги","Включаю свой дальний свет","На мгновение закрываю глаза","Ускоряюсь"],e:"При ослеплении снизьте скорость, при необходимости остановитесь, и смотрите на правый край дороги. Ослеплять в ответ дальним светом опасно и запрещено.",v:["Фары встречного автомобиля ослепляют. Как поступите?"]},
+ o11:{q:"Как проезжать крутой поворот?",o:["Снижаю скорость до поворота, в повороте держу ровную скорость","Торможу в середине поворота","Ускоряюсь при входе в поворот","Срезаю поворот по встречной полосе"],e:"Торможение в повороте может вызвать занос. Скорость нужно снизить до поворота.",v:["Как безопасно проехать крутой поворот?"]},
+ o12:{q:"Как должна измениться дистанция на скользкой дороге?",o:["Увеличиться в несколько раз","Остаться прежней","Уменьшиться","На скользкой дороге дистанция не важна"],e:"На скользкой дороге тормозной путь в несколько раз длиннее. Настолько же нужно увеличить и дистанцию.",v:["Дорога обледенела. Что должно произойти с дистанцией?"]},
+ o13:{q:"Вы принимаете лекарство, в инструкции к которому есть предупреждение о вождении. Что вы делаете?",o:["Не сажусь за руль, если лекарство может влиять на способность управлять","Езжу, ведь лекарство из аптеки","Езжу только днём","Езжу медленнее"],e:"Некоторые лекарства замедляют реакцию или вызывают сонливость. В таком состоянии управлять автомобилем запрещено.",v:["В инструкции к лекарству предупреждение, что оно может влиять на вождение. Как поступите?"]},
+ o14:{q:"В сумерках на дорогу выходит лось. Что вы делаете?",o:["Энергично торможу и учитываю, что животное может двигаться неожиданно","Ускоряюсь, чтобы проехать раньше животного","Сигналю и еду с той же скоростью","Выключаю фары"],e:"Лось может двигаться непредсказуемо. Энергично тормозите и избегайте резких манёвров на встречную полосу.",v:["В сумерках у края дороги появляется лось. Как вы реагируете?"]},
+ o15:{q:"Что делать при езде в тумане?",o:["Использую ближний свет или противотуманные фары и снижаю скорость","Использую дальний свет","Еду близко за впереди идущим, чтобы видеть его огни","Еду с аварийной сигнализацией с обычной скоростью"],e:"В тумане дальний свет ухудшает видимость. Используйте ближний свет и противотуманные фары, снизьте скорость и увеличьте дистанцию.",v:["Густой туман. Какие фары вы включаете и как едете?"]},
+ s1:{q:"Какие фары должны гореть у механического транспортного средства днём во время движения?",o:["Ближний свет или дневные ходовые огни, они должны гореть всегда","Днём фары не нужны","Только противотуманные","Только аварийная сигнализация"],e:"Во время движения у механического транспортного средства круглосуточно должны гореть ближний свет или дневные ходовые огни. В тёмное время нужно использовать ближний или дальний свет.",v:["Должны ли днём у автомобиля гореть фары?"]},
+ s2:{q:"Вы едете в темноте с дальним светом, навстречу едет автомобиль. Что вы делаете?",o:["Заблаговременно переключаю дальний свет на ближний","Оставляю дальний свет","Выключаю фары","Мигаю дальним светом"],e:"Дальний свет нужно переключить на ближний, чтобы не ослеплять встречного водителя. То же правило, когда вы едете близко за другим автомобилем.",v:["Ночью на шоссе навстречу едет автомобиль, у вас дальний свет. Что делаете?"]},
+ s3:{q:"Когда в Эстонии можно использовать шипованные шины (если Транспортный департамент не изменит срок из-за погоды)?",o:["С 15 октября по 31 марта","С 1 ноября по 1 апреля","С 1 декабря по 1 марта","Круглый год"],e:"Шипованные шины разрешены с 15 октября по 31 марта. Из-за погодных условий Транспортный департамент может изменить этот период.",v:["В какие даты, как правило, разрешено использовать шипованные шины?"]},
+ s4:{q:"Когда зимние шины на легковом автомобиле обязательны?",o:["С 1 декабря по 1 марта","С 15 октября по 31 марта","С 1 ноября по 1 мая","Только при снеге"],e:"Зимние шины (шипованные или фрикционные) обязательны с 1 декабря по 1 марта.",v:["В какой период на легковом автомобиле должны быть зимние шины?"]},
+ s5:{q:"Какой должна быть глубина рисунка протектора зимней шины как минимум?",o:["3 мм","1,6 мм","1 мм","5 мм"],e:"Глубина рисунка протектора зимней шины должна быть не менее 3 мм (у летней — не менее 1,6 мм).",v:["Какова минимальная допустимая глубина рисунка зимней шины?"]},
+ s6:{q:"Что должно быть в оснащении легкового автомобиля?",o:["Знак аварийной остановки, огнетушитель и аптечка","Цепи противоскольжения","Буксировочный трос и домкрат","Запасное колесо и компрессор"],e:"Обязательное оснащение легкового автомобиля: знак аварийной остановки, огнетушитель и средства первой помощи.",v:["Что входит в обязательное оснащение легкового автомобиля?"]},
+ s7:{q:"Когда нужно включить аварийную сигнализацию?",o:["Когда автомобиль остановился в месте, где он может быть опасен для других, например из-за неисправности","Когда паркуюсь в запрещённом месте","Когда медленно еду по левой полосе","Всегда в дождь"],e:"Аварийная сигнализация предупреждает других, когда автомобиль стоит в опасном месте или совершил вынужденную остановку.",v:["Когда вы используете аварийную сигнализацию?"]},
+ u1:{q:"Вы подъехали к ДТП, где есть пострадавшие. Как правильно действовать?",o:["Обеспечиваю безопасность (аварийная сигнализация, знак аварийной остановки), звоню 112 и оказываю первую помощь","Фотографирую и еду дальше","Сразу вытаскиваю всех пострадавших из машины","Жду, пока позвонит кто-то другой"],e:"Сначала обезопасьте место ДТП, чтобы не произошло новой аварии, затем вызовите помощь по номеру 112 и окажите первую помощь.",v:["Вы оказались у ДТП с пострадавшими. В каком порядке действуете?"]},
+ u2:{q:"По какому номеру вызывать скорую помощь, спасателей и полицию?",o:["112","110","911","1247"],e:"В Эстонии единый номер экстренной помощи 112.",v:["По какому номеру звонить, чтобы вызвать помощь при ДТП?"]},
+ u3:{q:"Когда можно перемещать пострадавшего на месте ДТП?",o:["Когда пребывание на месте угрожает его жизни, например при пожаре","Всегда, чтобы ему было удобнее лежать","Никогда","Когда он просит воды"],e:"Пострадавшего нельзя перемещать без нужды, это может усугубить травмы. Исключение — прямая угроза жизни.",v:["Когда можно вынести пострадавшего с места ДТП?"]},
+ u4:{q:"Пострадавший без сознания, но дышит. Как его уложить?",o:["На бок в устойчивое положение","На спину, голова выше","Посадить","На живот"],e:"Дышащего пострадавшего без сознания укладывают на бок в устойчивое положение, чтобы дыхательные пути оставались свободными.",v:["Как уложить человека без сознания, который дышит?"]},
+ u5:{q:"Ваш автомобиль остановился на дороге из-за неисправности. Куда поставить знак аварийной остановки?",o:["Позади автомобиля на таком расстоянии, чтобы другие вовремя заметили опасность","Прямо рядом с автомобилем","На крышу автомобиля","Перед автомобилем"],e:"Знак аварийной остановки ставят позади автомобиля на таком расстоянии, чтобы другие участники движения вовремя его заметили и успели среагировать.",v:["Автомобиль из-за поломки остановился на дороге. Куда вы ставите знак аварийной остановки?"]},
+ u6:{q:"Вы участник небольшого столкновения, никто не пострадал. Что можно сделать?",o:["Стороны могут оформить совместное извещение и убрать автомобили с дороги","Нужно сразу уехать с места ДТП","Нужно всегда ждать полицию несколько часов","Можно уехать, не оставив своих данных"],e:"Если пострадавших нет и участники согласны в обстоятельствах, они могут сами оформить ДТП и убрать автомобили, чтобы не мешать движению. Уезжать, не обменявшись данными, нельзя.",v:["Небольшое столкновение, пострадавших нет. Что могут сделать участники?"]},
+ n1:{q:"На вашем направлении знак «Уступите дорогу». На пересекаемой дороге никого нет, видимость хорошая. Нужно ли останавливаться?",o:["Не нужно, могу безопасно ехать дальше","Да, всегда останавливаюсь перед стоп-линией","Да, останавливаюсь минимум на 3 секунды","Нужно подать звуковой сигнал"],e:"Знак «Уступите дорогу» не обязывает останавливаться, если уступать некому. Обязательная остановка действует у знака STOP.",v:["Перед знаком «Уступите дорогу» пересекаемая дорога пуста. Обязательна ли остановка?"]},
+ n2:{q:"Вне населённого пункта от остановки начинает движение автобус. Обязаны ли вы уступить ему дорогу?",o:["Нет, эта обязанность действует в населённом пункте, но я внимателен","Да, всегда","Да, только в тёмное время суток","Нужно остановиться за автобусом"],e:"Обязанность уступить дорогу автобусу, отъезжающему от остановки, действует в населённом пункте. Вне его всё равно будьте внимательны."},
+ n3:{q:"Загорается жёлтый. Вы достаточно далеко от стоп-линии, чтобы безопасно остановиться. Что вы делаете?",o:["Останавливаюсь перед стоп-линией","Ускоряюсь и проезжаю","Еду дальше, жёлтый разрешает","Поворачиваю направо"],e:"Жёлтый сигнал запрещает движение. Ехать дальше можно, только если безопасно остановиться уже нельзя.",v:["Светофор переключается на жёлтый, когда вы ещё далеко от перекрёстка. Как поступите?"]},
+ n4:{q:"Светофор выключен. На вашем направлении знак «Уступите дорогу». По чему вы едете?",o:["По знаку: уступаю дорогу движущимся по пересекаемой дороге","По правилу правой руки","Еду первым, раз светофор не работает","Жду, пока светофор заработает"],e:"Если светофор не работает или мигает жёлтым, действуют знаки приоритета."},
+ n5:{q:"Регулировщик стоит к вам грудью, руки вытянуты в стороны. Что вам разрешено?",o:["Не двигаться","Ехать прямо","Повернуть направо","Ехать в любом направлении"],e:"Если регулировщик стоит к участнику движения грудью или спиной, движение с этой стороны запрещено."},
+ n6:{q:"Впереди идущий подал сигнал левого поворота и занял положение для поворота. С какой стороны его можно объехать?",o:["Справа","Слева","Нельзя объезжать","С обеих сторон"],e:"Транспорт, занявший положение для поворота налево, объезжают справа."},
+ n7:{q:"Действует знак «Стоянка запрещена». Можно ли ненадолго остановиться, чтобы высадить пассажира?",o:["Да","Нет","Только на такси","Только в тёмное время суток"],e:"Запрет стоянки (одна наклонная полоса) разрешает остановку, например, для посадки или высадки пассажира."},
+ n8:{q:"Действует знак «Остановка запрещена». Можно ли ненадолго остановиться, чтобы высадить пассажира?",o:["Нет","Да","Да, если включена аварийная сигнализация","Да, до 5 минут"],e:"Запрет остановки (крест) запрещает и кратковременную остановку."},
+ n9:{q:"Вы поворачиваете на дорогу, которую пешеход переходит в месте без пешеходного перехода. Кто уступает дорогу?",o:["Я, потому что поворачиваю на дорогу, которую он переходит","Пешеход, потому что перехода нет","Никто","Тот, кто быстрее"],e:"В месте перехода без разметки у пешехода обычно нет преимущества, но если водитель поворачивает на дорогу, которую переходит пешеход, водитель должен уступить."},
+ n10:{q:"В населённом пункте стоит знак, разрешающий максимальную скорость 70 км/ч. С какой скоростью там можно ехать?",o:["До 70 км/ч, если позволяют условия","До 50 км/ч, потому что это населённый пункт","До 90 км/ч","Ровно 70 км/ч"],e:"Знак изменяет общее ограничение скорости. В населённом пункте знаком можно повысить ограничение до 90 км/ч."},
+ n11:{q:"Что означает прерывистая линия между полосами?",o:["Линию можно пересекать, если это безопасно","Линию пересекать нельзя","Линия обозначает место стоянки","Линия обозначает велодорожку"],e:"Прерывистую линию можно пересекать, если это безопасно. Сплошную линию пересекать нельзя."},
+ n12:{q:"Можно ли пересечь сплошную линию для обгона?",o:["Нельзя","Можно, если навстречу никого нет","Можно, если впереди идущий медленный","Можно днём"],e:"Сплошная линия запрещает её пересечение. Прерывистую можно пересекать, если это безопасно."},
+ n13:{q:"В каком направлении движутся по кругу на перекрёстке с круговым движением?",o:["Против часовой стрелки, центральный островок остаётся слева","По часовой стрелке, островок остаётся справа","Прямо через центральный островок","В любом направлении"],e:"На перекрёстке с круговым движением движутся против часовой стрелки, как показывают стрелки на знаке."},
+ n14:{q:"Как вы подаёте сигнал о том, что съезжаете с кругового перекрёстка?",o:["Правым указателем поворота","Левым указателем поворота","Сигнал не нужен","Аварийной сигнализацией"],e:"Съезд с кругового перекрёстка — это поворот направо, о нём заранее сигнализируют правым указателем поворота."},
+ n15:{q:"Полицейский автомобиль позади вас подаёт сигнал остановиться. Что вы делаете?",o:["Безопасно останавливаюсь у правого края дороги","Ускоряюсь","Сразу останавливаюсь посреди полосы","Доезжаю до следующего перекрёстка и сворачиваю"],e:"Требование полицейского нужно выполнить. Остановитесь безопасно, как правило у правого края дороги."},
+ n16:{q:"Когда в населённом пункте можно использовать звуковой сигнал?",o:["Только для предотвращения ДТП","Всегда, когда впереди идущий медленный","Для приветствия","Когда светофор переключился на зелёный"],e:"В населённом пункте звуковой сигнал можно использовать только для предотвращения дорожно-транспортного происшествия."},
+ n17:{q:"Может ли водитель — участник ДТП употребить алкоголь до проверки на опьянение?",o:["Нет","Да, если никто не пострадал","Да, чтобы успокоиться","Да, если автомобиль остался цел"],e:"Водитель — участник ДТП не должен употреблять алкоголь и другие одурманивающие вещества до проверки на опьянение."},
+ n18:{q:"На дороге с двусторонним движением вы хотите повернуть налево. Где вы располагаетесь перед поворотом?",o:["У осевой линии проезжей части","У правого края дороги","На обочине","На полосе встречного движения"],e:"На дороге с двусторонним движением перед поворотом налево водитель заранее занимает положение у осевой линии.",v:["Где располагаться на двусторонней дороге перед левым поворотом?"]},
+ n19:{q:"На дороге с односторонним движением вы хотите повернуть налево. Где вы располагаетесь перед поворотом?",o:["У левого края проезжей части","У правого края проезжей части","Посередине проезжей части","Без разницы"],e:"На дороге с односторонним движением перед поворотом налево водитель заранее занимает положение у левого края проезжей части."},
+ n20:{q:"Вы обгоняете велосипедиста. Что вы учитываете?",o:["Оставляю достаточный боковой интервал, потому что велосипедист может сместиться","Обгоняю как можно ближе, чтобы не мешать встречным","Сигналю и быстро обгоняю","Всегда обгоняю справа"],e:"Велосипедист может вилять или объезжать ямы. Оставьте достаточный боковой интервал и при необходимости дождитесь удобного момента."},
+ n21:{q:"На железнодорожном переезде шлагбаум поднят, но мигают красные огни. Можно ли ехать?",o:["Нет","Да, шлагбаум ведь поднят","Да, медленно","Да, если поезда не видно"],e:"Мигающий красный сигнал запрещает въезд на переезд, даже если шлагбаум поднят."},
+ n22:{q:"Вы едете в темноте с дальним светом близко за другим автомобилем. Что вы делаете?",o:["Переключаю на ближний свет","Оставляю дальний свет","Включаю только противотуманные фары","Мигаю дальним светом"],e:"Дальний свет ослепляет впереди идущего через зеркала. Едучи близко сзади, используйте ближний свет."},
+ n23:{q:"Должен ли пассажир на заднем сиденье такси пристегнуться ремнём безопасности?",o:["Да","Нет","Только вне населённого пункта","Только в тёмное время суток"],e:"Ремень безопасности должны пристёгивать все пассажиры, в том числе в такси и на заднем сиденье."},
+ n24:{q:"Можно ли ездить на механическом транспортном средстве по тротуару?",o:["Как правило, нет, это запрещено","Да, если проезжая часть в пробке","Да, медленно","Да, чтобы найти место для стоянки"],e:"Ездить по тротуару на механическом транспортном средстве запрещено. Исключение — например, въезд на прилегающую территорию и выезд с неё."},
+ },
+ ui:{
+  eyebrow:"Теория категории B · обучающая игра",
+  lead:"Учите эстонские правила дорожного движения по темам, после каждого ответа смотрите объяснение и ссылку на закон и пробуйте симуляцию экзамена.",
+  exam:"Симуляция экзамена", examSub:(n,m,w,s)=>`${n} вопросов, ${m} мин, не более ${w} ошибок и не более ${s} в безопасности движения`,
+  mix:"Быстрая тренировка", mixSub:"10 случайных вопросов по всем темам",
+  redo:"Работа над ошибками", redoSub:n=>`${n} вопросов, на которые вы последний раз ответили неверно`, redoNone:"Ошибок пока нет, молодец!",
+  atlas:"Атлас знаков", atlasSub:"Все знаки игры с их значением",
+  progress:"Ваш прогресс", learned:(m,n)=>`${m} / ${n} вопросов изучено`, pct:"изучено", exams:p=>`экзаменов (${p} сдано)`, best:"лучший результат",
+  topic:"Тренировать тему",
+  note:`Учебное пособие, не официальный экзамен Транспортного департамента. Вопросы составлены на основе эстонского Закона о дорожном движении (Liiklusseadus) и постановлений к нему (<a href="https://www.riigiteataja.ee" target="_blank" rel="noopener">Riigi Teataja</a>). Официальные условия экзамена: <a href="https://www.transpordiamet.ee/en/theory-test" target="_blank" rel="noopener">Transpordiamet</a>. Знаки нарисованы упрощённо.`,
+  reset:"Сбросить прогресс", resetSure:"Уверены? Нажмите ещё раз",
+  home:"← Главная", safety:"Безопасность движения", right:"Верно!", wrongAns:l=>"Неверно. Правильный ответ: "+l, next:"Далее →", result:"Посмотреть результат",
+  resultT:"результат", allRight:"Все ответы верные! Попробуйте следующую тему или симуляцию экзамена.", someWrong:n=>`Неверных ответов: ${n}. Они попадут и в работу над ошибками.`, again:"Новый раунд", homeBtn:"Главная",
+  examLike:"Как на настоящем экзамене",
+  li1:n=>`<b>${n} вопросов</b>, в каждом один правильный ответ.`, li2:m=>`Время <b>${m} минут</b>. Вопрос без ответа считается неверным.`,
+  li3:(w,s)=>`Экзамен сдан, если ошибок <b>не более ${w}</b>, а в вопросах по безопасности движения <b>не более ${s}</b>.`, li4:"Правильные ответы вы увидите в конце. Между вопросами можно переходить вперёд и назад.",
+  examNote:"Как на настоящем экзамене категории B: 40 вопросов, из них 10 по безопасности движения, 30 минут. Правило ошибок взято со страницы теоретического экзамена Транспортного департамента. Официальные условия могут меняться, проверьте их перед экзаменом на сайте Транспортного департамента.",
+  start:"Начать экзамен", back:"Назад", examAns:(a,n)=>`Экзамен · отвечено ${a}/${n}`, qn:i=>`Вопрос ${i}`, prev:"← Назад", finish:"Завершить экзамен", quit:"Прервать",
+  unans:u=>`Без ответа: ${u}. Всё равно завершить`, quitSure:"Уверены? Результат не сохранится",
+  passed:"Сдан", safeFail:(s,m)=>`В вопросах по безопасности ошибок: ${s} (допустимо ${m})`, totFail:(w,m)=>`Ошибок: ${w} (допустимо ${m})`,
+  examRes:"Результат экзамена", PASS:"СДАН", FAIL:"НЕ СДАН", sum:(w,s)=>`Всего ошибок ${w}, из них по безопасности движения ${s}.`, newExam:"Новый экзамен",
+  review:"Ошибки и объяснения", safeTag:" · безопасность движения", your:"Ваш ответ: ", none:"нет ответа", correctIs:"Правильно: ",
+  atlasT:"Дорожные знаки", atlasNote:"Знаки нарисованы упрощённо. Официальные изображения — в приложении к постановлению о средствах организации дорожного движения в Riigi Teataja.", quiz:"Тренировать знаки",
+  sign:n=>`знак «${n}»`, lang:"Язык",
+ },
+ gen:{
+  ctxEq:"Перекрёсток равнозначных дорог, знаков и светофора нет.", ctxMain:"На перекрёстке есть главная и второстепенные дороги (смотрите знаки).",
+  turn:{s:"едет прямо",l:"поворачивает налево",r:"поворачивает направо"},
+  car:n=>"автомобиль "+n, carDat:n=>"автомобилю "+n, tram:"трамвай", tramDat:"трамваю",
+  order:"В каком порядке транспортные средства проедут перекрёсток?", whoYield:"Кто должен уступить дорогу?", whoFirst:"Кто проедет первым?",
+  oYield:["Никто не должен уступать","Оба должны остановиться"], oFirst:["Оба одновременно","Тот, кто подъехал к перекрёстку раньше"],
+  rMain:(A,B,st)=>`${A} на второстепенной дороге (знак «${st?"STOP":"Уступите дорогу"}») и должен уступить дорогу ${B}, который едет по главной дороге.`,
+  rTram:(a)=>`На перекрёстке равнозначных дорог у трамвая преимущество, поэтому ${a} уступает ему дорогу.`,
+  rLeft:(A,B,t)=>`${A} поворачивает налево и уступает дорогу встречному ${B}.`,
+  rRight:(A,B,main)=>`${main?"Оба на одной дороге, поэтому между ними действует правило правой руки: ":"Правило правой руки: "}${B} приближается к ${A} справа.`,
+  g1:(v)=>`Вы едете со скоростью ${v} км/ч. Какое расстояние автомобиль проезжает за одну секунду?`, g1e:(v,m)=>`Скорость в метрах в секунду: км/ч разделить на 3,6: ${v} / 3,6 = ${m} м/с.`,
+  g2:(t,v)=>`Время реакции водителя ${t} с, скорость ${v} км/ч. Какое расстояние проедет автомобиль, прежде чем водитель нажмёт на тормоз?`, g2e:(a,t,m)=>`Путь за время реакции = скорость (м/с) × время реакции = ${a} × ${t} = ${m} м. В это время автомобиль ещё не тормозит.`,
+  g3:(v)=>`Какова дистанция в две секунды при скорости ${v} км/ч?`, g3e:(v,m)=>`За две секунды автомобиль проезжает 2 × ${v} / 3,6 = ${m} м. На скользкой дороге оставляйте в несколько раз больше.`,
+  g4:(a,b)=>`Скорость растёт с ${a} до ${b} км/ч. Примерно во сколько раз увеличится тормозной путь?`, g4e:(k)=>`Тормозной путь растёт примерно пропорционально квадрату скорости: скорость в ${k} раза больше даёт тормозной путь примерно в ${k}² = ${k*k} раз длиннее.`,
+  m:" м", times:" раз",
+ },
+};
+
+/* ============ STATE ============ */
+const KEY="liiklustark-v1";
+let store={q:{},exams:[]};
+try{const raw=localStorage.getItem(KEY); if(raw) store=Object.assign(store,JSON.parse(raw))}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+function record(id,ok){const r=store.q[id]||{c:0,w:0};ok?r.c++:r.w++;r.last=ok?1:0;store.q[id]=r;save()}
+const byId=Object.fromEntries(Q.map(q=>[q.id,q]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function topicStats(t){const qs=Q.filter(q=>!t||q.t===t);let m=0,seen=0;for(const q of qs){const r=store.q[q.id];if(r){seen++;if(r.last)m++}}return{n:qs.length,seen,m}}
+function wrongList(){return Q.filter(q=>store.q[q.id]&&!store.q[q.id].last)}
+
+/* ============ VIEW HELPERS ============ */
+const app=document.getElementById("app");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function figHtml(f){if(!f)return"";if(f.startsWith("sign:"))return`<div class="fig sign">${signSvg(f.slice(5))}</div>`;return`<div class="fig">${f}</div>`}
+function prep(q){ // materialise one concrete question: generated content, wording variant, shuffled options
+  let base=q;
+  if(q.gen){const g=GEN[q.gen](); base=g?{...q,...g}:prep(Q.find(x=>x.id==="e1")).q}
+  let text=base.q;
+  if(CH) text=pick([base.q,...(base.v||[])]); // friend challenge: same wording for both players
+  else if(store.q[q.id]&&base.v&&base.v.length) text=pick(base.v); // seen before: comes back reworded
+  const opts=q.sign?signOptions(q.sign):q.rsign?reverseSignOptions(q.rsign):base.o.slice();
+  const order=shuffle(opts.map((_,i)=>i));
+  return {q:{...base,q:text},opts:order.map(i=>opts[i]),correct:order.indexOf(0),pick:null};
+}
+const optHtml=o=>o.startsWith("sign:")?`<span class="osign">${signSvg(o.slice(5))}</span>`:esc(o);
+const optText=o=>o.startsWith("sign:")?T.sign(SIGNS[o.slice(5)].n):o;
+const optsCls=it=>it.opts[0].startsWith("sign:")?"opts grid":"opts";
+const LET="ABCD";
+const icon={
+  practice:`<svg viewBox="0 0 44 44"><rect x="4" y="8" width="36" height="28" rx="4" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/><path d="M12 22 l6 6 l14-14" fill="none" stroke="var(--ok)" stroke-width="4"/></svg>`,
+  exam:`<svg viewBox="0 0 44 44"><circle cx="22" cy="24" r="16" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/><path d="M22 24 V13 M22 24 l8 5" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><rect x="18" y="3" width="8" height="5" fill="var(--ink)"/></svg>`,
+  redo:`<svg viewBox="0 0 44 44"><path d="M34 22 a12 12 0 1 1 -4 -9" fill="none" stroke="var(--bad)" stroke-width="4"/><path d="M28 6 l4 8 l-9 1z" fill="var(--bad)"/></svg>`,
+  atlas:W(warn(`<path d="M50 34 V66" stroke="${BLK}" stroke-width="9"/><circle cx="50" cy="78" r="5" fill="${BLK}"/>`))
+};
+
+/* ============ LANGUAGE ============ */
+const NAME=["Luba","kas"]; // app name, split for the two-colour wordmark
+const ET_UI={
+  eyebrow:"B-kategooria teooria · õppemäng",
+  lead:"Harjuta Eesti liikluseeskirja teemade kaupa, vaata pärast iga vastust selgitust ja seaduse viidet ning proovi eksamisimulatsiooni.",
+  exam:"Eksamisimulatsioon", examSub:(n,m,w,s)=>`${n} küsimust, aeg ${m} min, kuni ${w} viga ja liiklusohutuses kuni ${s}`,
+  mix:"Kiirharjutus", mixSub:"10 juhuslikku küsimust kõigist teemadest",
+  redo:"Vigade kordamine", redoSub:n=>`${n} küsimust, millele vastasid viimati valesti`, redoNone:"Vigu pole veel, tubli!",
+  atlas:"Märkide atlas", atlasSub:"Kõik mängu märgid koos tähendusega",
+  progress:"Sinu edenemine", learned:(m,n)=>`${m} / ${n} küsimust selgeks`, pct:"õpitud", exams:p=>`eksamit (${p} sooritatud)`, best:"parim tulemus",
+  topic:"Harjuta teemat",
+  note:`Õppevahend, mitte Transpordiameti ametlik küsimustik. Küsimused on koostatud liiklusseaduse ja selle määruste põhjal (<a href="https://www.riigiteataja.ee" target="_blank" rel="noopener">Riigi Teataja</a>). Eksami ametlikud tingimused: <a href="https://www.transpordiamet.ee/en/theory-test" target="_blank" rel="noopener">Transpordiamet</a>. Märgid on lihtsustatud joonised.`,
+  reset:"Nulli edenemine", resetSure:"Kindel? Vajuta uuesti",
+  home:"← Avaleht", safety:"Liiklusohutus", right:"Õige!", wrongAns:l=>"Vale. Õige vastus: "+l, next:"Järgmine →", result:"Vaata tulemust",
+  resultT:"tulemus", allRight:"Kõik õiged! Proovi järgmist teemat või eksamisimulatsiooni.", someWrong:n=>`${n} vastust läks valesti. Need jõuavad ka vigade kordamisse.`, again:"Uus voor", homeBtn:"Avaleht",
+  examLike:"Nagu päris eksamil",
+  li1:n=>`<b>${n} küsimust</b>, igal üks õige vastus.`, li2:m=>`Aega <b>${m} minutit</b>. Vastamata küsimus loetakse valeks.`,
+  li3:(w,s)=>`Sooritatud, kui vigu on <b>kuni ${w}</b> ja liiklusohutuse küsimustes <b>kuni ${s}</b>.`, li4:"Õigeid vastuseid näed alles lõpus. Küsimuste vahel saad edasi-tagasi liikuda.",
+  examNote:"Nagu päris B-kategooria eksamil: 40 küsimust, neist 10 liiklusohutuse kohta, aega 30 minutit. Veareegel on Transpordiameti teooriaeksami lehelt. Ametlikud tingimused võivad muutuda, kontrolli neid enne eksamit Transpordiameti kodulehelt.",
+  start:"Alusta eksamit", back:"Tagasi", examAns:(a,n)=>`Eksam · ${a}/${n} vastatud`, qn:i=>`Küsimus ${i}`, prev:"← Eelmine", finish:"Lõpeta eksam", quit:"Katkesta",
+  unans:u=>`${u} vastamata. Lõpetan ikka`, quitSure:"Kindel? Tulemust ei salvestata",
+  passed:"Sooritatud", safeFail:(s,m)=>`Liiklusohutuse küsimustes ${s} viga (lubatud ${m})`, totFail:(w,m)=>`${w} viga (lubatud ${m})`,
+  examRes:"Eksami tulemus", PASS:"SOORITATUD", FAIL:"MITTE SOORITATUD", sum:(w,s)=>`Vigu kokku ${w}, neist liiklusohutuses ${s}.`, newExam:"Uus eksam",
+  review:"Vead ja selgitused", safeTag:" · liiklusohutus", your:"Sinu vastus: ", none:"vastamata", correctIs:"Õige: ",
+  atlasT:"Liiklusmärgid", atlasNote:"Märgid on joonistatud lihtsustatult. Ametlikud kujutised leiad liikluskorraldusvahendite määruse lisast Riigi Teatajas.", quiz:"Harjuta märke",
+  sign:n=>`märk „${n}“`, lang:"Keel",
+};
+let LANG="et"; try{ if(localStorage.getItem("liiklustark-lang")==="ru") LANG="ru" }catch(e){}
+let T=ET_UI;
+const ET_SNAP={q:Q.map(q=>({q:q.q,o:q.o,e:q.e,s:q.s,v:q.v})), signs:Object.fromEntries(Object.entries(SIGNS).map(([k,s])=>[k,{n:s.n,m:s.m,e:s.e}])), topics:{...TOPICS}};
+function trSrc(s){ if(!s) return s; let r=s; for(const [a,b] of RU.src) r=r.split(a).join(b);
+  return r.replace(/§ (\d+) lg (\d+) p (\d+)/g,"§ $1 ч. $2 п. $3").replace(/§ (\d+) lg (\d+)/g,"§ $1 ч. $2").replace(/§ (\d+) p (\d+)/g,"§ $1 п. $2"); }
+const groupName=g=>LANG==="ru"?RU.groups[g]:g;
+function applyLang(lang){
+  LANG=lang; T=lang==="ru"?{...ET_UI,...RU.ui}:ET_UI;
+  try{localStorage.setItem("liiklustark-lang",lang)}catch(e){}
+  document.documentElement.lang=lang;
+  for(const [k,s] of Object.entries(SIGNS)) Object.assign(s, lang==="ru"?RU.signs[k]:ET_SNAP.signs[k]);
+  if(typeof syncReminder==="function"&&store.st) syncReminder();
+  for(const k of Object.keys(TOPICS)) TOPICS[k]=lang==="ru"?RU.topics[k]:ET_SNAP.topics[k];
+  Q.forEach((q,i)=>{
+    const et=ET_SNAP.q[i];
+    if(q.sign){ const s=SIGNS[q.sign]; q.q=lang==="ru"?RU.signQ:"Mida tähendab see liiklusmärk?"; q.v=lang==="ru"?RU.signV:["Mis on selle märgi tähendus?","Mida see märk sulle ütleb?","Näed teel sellist märki. Mida see tähendab?"]; q.e=lang==="ru"?`«${s.n}». ${s.e}`:`„${s.n}“. ${s.e}`; q.s=lang==="ru"?trSrc(LKV):LKV; return; }
+    if(q.rsign){ const s=SIGNS[q.rsign]; q.q=lang==="ru"?RU.rsignQ(s.m):`Milline märk tähendab: „${s.m}“?`; q.v=[lang==="ru"?RU.rsignV(s.n):`Leia märk „${s.n}“.`]; q.e=lang==="ru"?`«${s.n}». ${s.e}`:`„${s.n}“. ${s.e}`; q.s=lang==="ru"?trSrc(LKV):LKV; return; }
+    if(q.gen) return;
+    const ru=lang==="ru"&&RU.q[q.id];
+    if(ru){ q.q=ru.q; q.o=ru.o; q.e=ru.e; q.v=ru.v; q.s=trSrc(et.s); }
+    else { q.q=et.q; q.o=et.o; q.e=et.e; q.v=et.v; q.s=et.s; }
+  });
+}
+
+/* ============ FUN: quips, titles, streaks, awards, sharing, friend challenge ============ */
+const FUN={
+ et:{
+  ok:["Instruktor noogutab rahulolevalt.","Puhas sõit!","Põder jäi ellu, sina ka.","Eksamineerija naeratas. Peaaegu.","Load on juba lõhna järgi tunda.","Pidurid korras, pea ka.","Selle eest saaks plusspunkti, kui neid jagataks."],
+  bad:["Ai. Hea, et see oli harjutus.","Auto jäi terveks, aga punkt mitte.","Instruktor vajutas oma pidurit.","Juhtub ka parimatega. Loe selgitust.","Seda küsitakse eksamil kindlasti. Nüüd tead.","GPS ütleb: ümberarvutus…"],
+  titles:[[40,"Liiklusseaduse elav entsüklopeedia"],[38,"Ringristmiku filosoof"],[35,"Parkimisplatsi legend"],[30,"Kindla käega roolikeeraja"],[25,"Paljulubav algaja"],[18,"Suunatule otsija"],[0,"Esimese käigu kangelane"]],
+  streak:"päeva järjest", streakNone:"Alusta täna seeriat", streakToday:"Täna juba harjutatud. Tubli!", streakTodo:"Täna veel harjutamata. Seeria katkeb südaööl!",
+  run:"parim õigete jada", awards:"Auhinnad", locked:"lukus", newAward:"Uus auhind!",
+  challenge:"Sõbra väljakutse", challengeSub:"Sisesta sõbra kood ja tee täpselt sama eksam", codePh:"nt LUBA-7K3F9-35", play:"Võtan väljakutse vastu", badCode:"Kood ei ole õige. See näeb välja nagu LUBA-7K3F9-35.",
+  share:"Jaga tulemust", shareT:(sc,n,pass,title,code)=>`Tegin Lubaka eksamisimulatsiooni: ${sc}/${n}, ${pass?"SOORITATUD":"seekord mitte"}. Tiitel: „${title}“. Kas teed paremini? Minu kood: ${code}`,
+  copy:"Kopeeri", copied:"Kopeeritud!", copyFail:"Vali tekst ja kopeeri käsitsi.", yourTitle:"Sinu tiitel",
+  vs:(me,fr)=>me>fr?`Võitsid sõpra: ${me} vs ${fr}!`:me<fr?`Sõber jäi seekord ette: ${fr} vs ${me}. Revanš?`:`Viik: ${me} vs ${fr}.`,
+  chTag:"Väljakutse",
+ },
+ ru:{
+  ok:["Инструктор одобрительно кивает.","Чистый заезд!","Лось выжил, и ты тоже.","Экзаменатор улыбнулся. Почти.","Права уже где-то рядом.","Тормоза в порядке, голова тоже.","За это дали бы плюс, если бы их давали."],
+  bad:["Ой. Хорошо, что это тренировка.","Машина цела, а балл нет.","Инструктор нажал на свой тормоз.","Бывает и с лучшими. Прочитай объяснение.","Это точно спросят на экзамене. Теперь ты знаешь.","Навигатор: перестраиваю маршрут…"],
+  titles:[[40,"Живая энциклопедия ПДД"],[38,"Философ кругового движения"],[35,"Легенда парковки"],[30,"Уверенная рука на руле"],[25,"Многообещающий новичок"],[18,"Искатель поворотника"],[0,"Герой первой передачи"]],
+  streak:"дней подряд", streakNone:"Начни серию сегодня", streakToday:"Сегодня тренировка уже была. Молодец!", streakTodo:"Сегодня тренировки ещё не было. Серия прервётся в полночь!",
+  run:"лучшая серия верных", awards:"Награды", locked:"закрыто", newAward:"Новая награда!",
+  challenge:"Вызов другу", challengeSub:"Введи код друга и пройди точно такой же экзамен", codePh:"напр. LUBA-7K3F9-35", play:"Принимаю вызов", badCode:"Код неверный. Он выглядит так: LUBA-7K3F9-35.",
+  share:"Поделиться результатом", shareT:(sc,n,pass,title,code)=>`Мой результат в симуляции экзамена Lubakas: ${sc}/${n}, ${pass?"экзамен сдан":"пока не сдан"}. Титул: «${title}». Сможешь лучше? Мой код: ${code}`,
+  copy:"Копировать", copied:"Скопировано!", copyFail:"Выдели текст и скопируй вручную.", yourTitle:"Твой титул",
+  vs:(me,fr)=>me>fr?`Ты впереди друга: ${me} против ${fr}!`:me<fr?`Друг пока впереди: ${fr} против ${me}. Реванш?`:`Ничья: ${me} против ${fr}.`,
+  chTag:"Вызов",
+ },
+};
+const F=()=>FUN[LANG];
+const AWARDS=[
+ {id:"first",n:["Esimene sõit","Первая поездка"],d:["Vasta esimesele küsimusele","Ответь на первый вопрос"],ok:s=>s.total>=1},
+ {id:"run10",n:["Kümme järjest","Десять подряд"],d:["10 õiget vastust järjest","10 верных ответов подряд"],ok:s=>s.bestRun>=10},
+ {id:"run25",n:["Pidurdamatu","Неудержимый"],d:["25 õiget vastust järjest","25 верных ответов подряд"],ok:s=>s.bestRun>=25},
+ {id:"d3",n:["Kolm päeva roolis","Три дня за рулём"],d:["Harjuta 3 päeva järjest","Тренируйся 3 дня подряд"],ok:s=>s.bestDays>=3},
+ {id:"d7",n:["Nädal roolis","Неделя за рулём"],d:["Harjuta 7 päeva järjest","Тренируйся 7 дней подряд"],ok:s=>s.bestDays>=7},
+ {id:"pass",n:["Eksam käes","Экзамен сдан"],d:["Soorita eksamisimulatsioon","Сдай симуляцию экзамена"],ok:s=>s.passes>=1},
+ {id:"clean",n:["Puhas leht","Чистый лист"],d:["Eksam ilma ühegi veata","Экзамен без единой ошибки"],ok:s=>s.clean>=1},
+ {id:"cross",n:["Ristmiku kuningas","Король перекрёстков"],d:["20 õiget ristmikuülesannet","20 верных задач на перекрёстки"],ok:s=>s.cross>=20},
+ {id:"signs",n:["Märgimeister","Мастер знаков"],d:["Kõik märgiküsimused viimati õigesti","Все вопросы о знаках последний раз верно"],ok:()=>Q.filter(q=>q.t==="margid").every(q=>store.q[q.id]&&store.q[q.id].last)},
+ {id:"hundred",n:["Sada vastust","Сто ответов"],d:["Vasta 100 küsimusele","Ответь на 100 вопросов"],ok:s=>s.total>=100},
+ {id:"friend",n:["Sõbra vastu","Против друга"],d:["Tee sõbra väljakutse","Пройди вызов друга"],ok:s=>s.challenges>=1},
+];
+function stats(){ store.st=store.st||{total:0,run:0,bestRun:0,days:[],bestDays:0,passes:0,clean:0,cross:0,challenges:0}; store.aw=store.aw||[]; return store.st }
+const dayKey=(d=new Date())=>`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+function dayStreak(){ const s=stats(), set=new Set(s.days); let n=0; const d=new Date(); if(!set.has(dayKey(d))) d.setDate(d.getDate()-1);
+  while(set.has(dayKey(d))){n++;d.setDate(d.getDate()-1)} return n }
+function track(q,ok){ const s=stats(); s.total++; s.run=ok?s.run+1:0; s.bestRun=Math.max(s.bestRun,s.run);
+  const k=dayKey(); if(!s.days.includes(k)){s.days.push(k); if(s.days.length>60)s.days.shift()} s.bestDays=Math.max(s.bestDays,dayStreak());
+  if(ok&&q.gen&&q.gen[0]==="x") s.cross++; syncReminder(); }
+function checkAwards(){ const s=stats(), fresh=[]; for(const a of AWARDS){ if(!store.aw.includes(a.id)&&a.ok(s)){store.aw.push(a.id);fresh.push(a)} } save();
+  for(const a of fresh) toast(`${F().newAward} ${a.n[LANG==="ru"?1:0]}`) }
+function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); t.textContent=msg; document.body.appendChild(t);
+  setTimeout(()=>t.classList.add("in"),20); setTimeout(()=>{t.classList.remove("in");setTimeout(()=>t.remove(),400)},3200) }
+const quip=ok=>pick(F()[ok?"ok":"bad"]);
+const titleFor=sc=>{ const n=EXAM.n; for(const [min,t] of F().titles) if(sc*40/n>=min) return t; return F().titles.at(-1)[1] };
+const medal=(on)=>`<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M13 2 L20 14 L27 2" fill="none" stroke="${on?"var(--accent)":"var(--line)"}" stroke-width="5"/><circle cx="20" cy="24" r="12" fill="${on?"var(--accent)":"var(--grid)"}" stroke="var(--ink)" stroke-width="2"/><path d="M20 17 l2.2 4.6 5 .7 -3.6 3.5 .9 5 -4.5-2.4 -4.5 2.4 .9-5 -3.6-3.5 5-.7z" fill="${on?"#fff":"var(--line)"}"/></svg>`;
+const flame=`<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2 C13 7 18 8 18 14 a6 6 0 0 1 -12 0 c0-3 2-5 3-6 c0 3 1 4 2.5 4 C13 9 11 6 12 2z" fill="var(--accent)" stroke="var(--ink)" stroke-width="1.5"/></svg>`;
+
+/* seeded exams for friend challenges: the same code gives the same questions, wording and answer order */
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const encSeed=n=>n.toString(36).toUpperCase().padStart(5,"0");
+function parseCode(c){ const m=String(c).trim().toUpperCase().match(/^LUBA-([0-9A-Z]{5})(?:-(\d{1,2}))?$/); if(!m) return null; return {seed:parseInt(m[1],36),score:m[2]?+m[2]:null} }
+function withSeed(seed,fn){ const orig=Math.random; Math.random=mulberry(seed); CH=true; try{ return fn() } finally { Math.random=orig; CH=false } }
+let CH=false;
+
+async function copyText(txt,btn,area){ try{ await navigator.clipboard.writeText(txt); btn.textContent=F().copied }catch(e){ area.focus(); area.select(); btn.textContent=F().copyFail } }
+function sharePanel(text){ return `<div class="share"><b>${F().share}</b><textarea id="shareTxt" rows="3" readonly>${esc(text)}</textarea><div class="row"><button class="btn" id="copyBtn">${F().copy}</button></div></div>` }
+function wireShare(text){ const b=document.getElementById("copyBtn"), a=document.getElementById("shareTxt"); if(!b) return;
+  if(hasNative()){ b.textContent=F().share; b.onclick=()=>native({share:text}); } else b.onclick=()=>copyText(text,b,a) }
+/* iPhone app bridge: streak reminders and the system share sheet (no-op in a browser) */
+const hasNative=()=>!!(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.lubakas);
+function native(msg){ try{ if(hasNative()) window.webkit.messageHandlers.lubakas.postMessage(msg) }catch(e){} }
+function syncReminder(){ const s=stats(); native({reminder:true,lang:LANG,streak:dayStreak(),today:s.days.includes(dayKey())}) }
+
+/* ============ SCREENS ============ */
+function streakCard(){ const s=stats(), n=dayStreak(), today=s.days.includes(dayKey());
+  return `<div class="streak">${flame}<div><b class="mono">${n}</b> ${F().streak}<small>${n?(today?F().streakToday:F().streakTodo):F().streakNone} · ${F().run}: ${s.bestRun}</small></div></div>` }
+function home(){
+  clearInterval(timerId);
+  const all=topicStats(), wl=wrongList().length, ex=store.exams, best=ex.length?Math.max(...ex.map(e=>e.score)):null, passed=ex.filter(e=>e.pass).length;
+  app.innerHTML=`
+  <section class="hero">
+    <div class="row" style="justify-content:space-between"><span class="eyebrow">${T.eyebrow}</span>
+      <span class="langs" role="group" aria-label="${T.lang}"><button class="lng ${LANG==="et"?"on":""}" data-lang="et">EST</button><button class="lng ${LANG==="ru"?"on":""}" data-lang="ru">RUS</button></span></div>
+    <h1>${NAME[0]}<span>${NAME[1]}</span></h1>
+    <p class="lead">${T.lead}</p>
+  </section>
+  <div class="modes">
+    <button class="mode primary" data-go="exam">${icon.exam}<span><b>${T.exam}</b><small>${T.examSub(EXAM.n,EXAM.minutes,EXAM.maxWrong,EXAM.maxSafetyWrong)}</small></span></button>
+    <button class="mode" data-go="mix">${icon.practice}<span><b>${T.mix}</b><small>${T.mixSub}</small></span></button>
+    <button class="mode" data-go="redo" ${wl?"":"disabled style='opacity:.5'"}>${icon.redo}<span><b>${T.redo}</b><small>${wl?T.redoSub(wl):T.redoNone}</small></span></button>
+    <button class="mode" data-go="atlas">${icon.atlas}<span><b>${T.atlas}</b><small>${T.atlasSub}</small></span></button>
+    <button class="mode" data-go="challenge">${medal(true)}<span><b>${F().challenge}</b><small>${F().challengeSub}</small></span></button>
+  </div>
+  ${streakCard()}
+  <section class="card" style="display:flex;flex-direction:column;gap:14px">
+    <div class="row" style="justify-content:space-between"><h2 style="font-size:22px">${T.progress}</h2><span class="note">${T.learned(all.m,all.n)}</span></div>
+    <div class="stats">
+      <div class="stat"><div class="v">${Math.round(100*all.m/all.n)}%</div><div class="k">${T.pct}</div></div>
+      <div class="stat"><div class="v">${ex.length}</div><div class="k">${T.exams(passed)}</div></div>
+      <div class="stat"><div class="v">${best===null?"–":best+"/"+EXAM.n}</div><div class="k">${T.best}</div></div>
+    </div>
+    <div class="eyebrow">${F().awards} · ${stats()&&store.aw.length}/${AWARDS.length}</div>
+    <div class="awards">${AWARDS.map(a=>{const on=store.aw.includes(a.id),L=LANG==="ru"?1:0;return`<div class="aw ${on?"on":""}" title="${esc(a.d[L])}">${medal(on)}<b>${esc(a.n[L])}</b><small>${on?esc(a.d[L]):F().locked}</small></div>`}).join("")}</div>
+    <div class="eyebrow">${T.topic}</div>
+    <div class="topics">${Object.entries(TOPICS).map(([k,v])=>{const s=topicStats(k);return`<button class="topic" data-topic="${k}"><b>${v}</b><span class="pct">${s.m}/${s.n}</span><span class="bar"><i style="width:${100*s.m/s.n}%"></i></span></button>`}).join("")}</div>
+  </section>
+  <p class="note">${T.note}</p>
+  <div class="row"><button class="btn ghost" id="reset" style="font-size:14px;padding:8px 14px">${T.reset}</button></div>`;
+  app.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>{applyLang(b.dataset.lang);home()});
+  app.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>practice(Q.filter(q=>q.t===b.dataset.topic),{topic:b.dataset.topic}));
+  app.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
+    const g=b.dataset.go;
+    if(g==="exam") examIntro(); else if(g==="mix") practice(Q,{mix:true}); else if(g==="redo"&&wl) practice(wrongList(),{redo:true},true); else if(g==="atlas") atlas(); else if(g==="challenge") challengeIntro();
+  });
+  let armed=false;
+  document.getElementById("reset").onclick=e=>{ if(!armed){armed=true;e.target.textContent=T.resetSure;return}
+    store={q:{},exams:[]};save();home()};
+  window.scrollTo(0,0);
+}
+
+/* ---- Practice ---- */
+let P=null;
+const modeTitle=m=>m.redo?T.redo:m.mix?T.mix:TOPICS[m.topic];
+function practice(pool,mode,all=false){
+  // unseen first, then the ones answered wrong, then the rest
+  const scored=shuffle(pool.slice()).sort((a,b)=>score(a)-score(b));
+  const list=(all?scored:scored.slice(0,10)).map(prep);
+  P={mode,list,i:0,right:0};
+  showP();
+}
+function score(q){const r=store.q[q.id];if(!r)return 0;return r.last?2:1}
+function showP(){
+  const it=P.list[P.i], q=it.q, n=P.list.length;
+  app.innerHTML=`
+  <div class="hud"><button class="btn ghost" id="back" style="padding:8px 14px">${T.home}</button><span class="eyebrow">${esc(modeTitle(P.mode))}</span><span class="mono">${P.i+1} / ${n}</span></div>
+  <div class="progress"><i style="width:${100*P.i/n}%"></i></div>
+  <section class="card q">
+    <div class="row"><span class="tag">${TOPICS[q.t]}</span>${q.safe?`<span class="tag safe">${T.safety}</span>`:""}</div>
+    <h2>${esc(q.q)}</h2>
+    ${figHtml(q.f)}
+    <div class="${optsCls(it)}">${it.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="l">${LET[i]}</span><span>${optHtml(o)}</span></button>`).join("")}</div>
+    <div id="fb"></div>
+  </section>`;
+  document.getElementById("back").onclick=home;
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answerP(+b.dataset.i));
+  window.scrollTo(0,0);
+}
+function answerP(i){
+  const it=P.list[P.i], ok=i===it.correct; it.pick=i;
+  record(it.q.id,ok); track(it.q,ok); checkAwards(); if(ok)P.right++;
+  app.querySelectorAll(".opt").forEach((b,j)=>{b.classList.add("locked");if(j===it.correct)b.classList.add("right");else if(j===i)b.classList.add("wrong")});
+  const last=P.i===P.list.length-1;
+  document.getElementById("fb").innerHTML=`
+   <div class="explain ${ok?"":"bad"}"><b>${ok?T.right:T.wrongAns(LET[it.correct])}</b><p class="quip">${esc(quip(ok))}</p><p>${esc(it.q.e)}</p><p class="src">${esc(it.q.s)}</p></div>
+   <div class="row" style="margin-top:14px"><button class="btn" id="next">${last?T.result:T.next}</button></div>`;
+  const nx=document.getElementById("next"); nx.focus({preventScroll:true});
+  nx.onclick=()=>{ if(last) practiceDone(); else {P.i++;showP()} };
+  document.getElementById("fb").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function practiceDone(){
+  const n=P.list.length, wrong=P.list.filter(x=>x.pick!==x.correct), mode=P.mode;
+  app.innerHTML=`
+  <section class="card" style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">${esc(modeTitle(mode))} · ${T.resultT}</span>
+    <div class="big mono">${P.right} / ${n}</div>
+    <p>${P.right===n?T.allRight:T.someWrong(wrong.length)}</p>
+    <div class="row"><button class="btn" id="again">${T.again}</button><button class="btn ghost" id="home">${T.homeBtn}</button></div>
+  </section>`;
+  document.getElementById("again").onclick=()=>mode.redo?(wrongList().length?practice(wrongList(),mode,true):home()):practice(mode.mix?Q:Q.filter(q=>q.t===mode.topic),mode);
+  document.getElementById("home").onclick=home;
+  window.scrollTo(0,0);
+}
+
+/* ---- Exam ---- */
+const EXAM={n:40,safety:10,minutes:30,maxWrong:5,maxSafetyWrong:1};
+let E=null,timerId=null;
+function examIntro(){
+  app.innerHTML=`
+  <section class="card" style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">${T.exam}</span>
+    <h2 style="font-size:28px">${T.examLike}</h2>
+    <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px">
+      <li>${T.li1(EXAM.n)}</li><li>${T.li2(EXAM.minutes)}</li><li>${T.li3(EXAM.maxWrong,EXAM.maxSafetyWrong)}</li><li>${T.li4}</li>
+    </ul>
+    <p class="note">${T.examNote}</p>
+    <div class="row"><button class="btn" id="start">${T.start}</button><button class="btn ghost" id="home">${T.back}</button></div>
+  </section>`;
+  document.getElementById("start").onclick=()=>startExam();
+  document.getElementById("home").onclick=home;
+}
+function startExam(seed,friend){
+  if(seed==null) seed=Math.floor(Math.random()*60466176);
+  const list=withSeed(seed,()=>{
+  const safe=shuffle(Q.filter(q=>q.safe)).slice(0,EXAM.safety);
+  const rest=Q.filter(q=>!q.safe);
+  const signs=shuffle(rest.filter(q=>q.t==="margid")).slice(0,8);
+  const others=shuffle(rest.filter(q=>q.t!=="margid")).slice(0,EXAM.n-safe.length-signs.length);
+  return shuffle([...safe,...signs,...others]).map(prep); });
+  E={list,i:0,end:Date.now()+EXAM.minutes*60000,done:false,seed,friend};
+  timerId=setInterval(tick,1000);
+  showE();
+}
+function tick(){
+  const left=Math.max(0,E.end-Date.now()), el=document.getElementById("clock");
+  if(el){el.textContent=fmt(left);el.classList.toggle("low",left<5*60000)}
+  if(left<=0) finishExam();
+}
+const fmt=ms=>{const s=Math.ceil(ms/1000);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
+function showE(){
+  const it=E.list[E.i], q=it.q, n=E.list.length, answered=E.list.filter(x=>x.pick!==null).length;
+  app.innerHTML=`
+  <div class="hud"><span class="eyebrow">${T.examAns(answered,n)}</span><span class="clock" id="clock">${fmt(E.end-Date.now())}</span></div>
+  <div class="dots">${E.list.map((x,j)=>`<button class="dot ${x.pick!==null?"ans":""} ${j===E.i?"cur":""}" data-j="${j}" aria-label="${T.qn(j+1)}">${j+1}</button>`).join("")}</div>
+  <section class="card q">
+    <div class="row"><span class="eyebrow">${T.qn(E.i+1)}</span>${q.safe?`<span class="tag safe">${T.safety}</span>`:""}</div>
+    <h2>${esc(q.q)}</h2>
+    ${figHtml(q.f)}
+    <div class="${optsCls(it)}">${it.opts.map((o,i)=>`<button class="opt ${it.pick===i?"sel":""}" data-i="${i}"><span class="l">${LET[i]}</span><span>${optHtml(o)}</span></button>`).join("")}</div>
+    <div class="row" style="justify-content:space-between">
+      <button class="btn ghost" id="prev" ${E.i===0?"disabled":""}>${T.prev}</button>
+      ${E.i<n-1?`<button class="btn" id="nxt">${T.next}</button>`:`<button class="btn" id="fin">${T.finish}</button>`}
+    </div>
+  </section>
+  <div class="row"><button class="btn ghost" id="fin2" style="font-size:14px;padding:8px 14px">${T.finish}</button><button class="btn ghost" id="quit" style="font-size:14px;padding:8px 14px">${T.quit}</button></div>`;
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{it.pick=+b.dataset.i; if(E.i<n-1){E.i++;} showE()});
+  app.querySelectorAll(".dot").forEach(b=>b.onclick=()=>{E.i=+b.dataset.j;showE()});
+  const pv=document.getElementById("prev"); if(pv) pv.onclick=()=>{E.i--;showE()};
+  const nx=document.getElementById("nxt"); if(nx) nx.onclick=()=>{E.i++;showE()};
+  let armed=false;
+  const confirmFin=e=>{const un=n-E.list.filter(x=>x.pick!==null).length;
+    if(un&&!armed){armed=true;e.target.textContent=T.unans(un);return} finishExam()};
+  const f1=document.getElementById("fin"); if(f1) f1.onclick=confirmFin;
+  document.getElementById("fin2").onclick=confirmFin;
+  let qa=false; document.getElementById("quit").onclick=e=>{if(!qa){qa=true;e.target.textContent=T.quitSure;return}clearInterval(timerId);home()};
+}
+function finishExam(){
+  if(E.done) return; E.done=true; clearInterval(timerId);
+  let wrong=0,sw=0;
+  for(const x of E.list){const ok=x.pick===x.correct;record(x.q.id,ok);track(x.q,ok);if(!ok){wrong++;if(x.q.safe)sw++}}
+  const score=E.list.length-wrong, pass=wrong<=EXAM.maxWrong&&sw<=EXAM.maxSafetyWrong;
+  store.exams.push({d:Date.now(),score,wrong,sw,pass}); const st=stats(); if(pass)st.passes++; if(!wrong)st.clean++; if(E.friend!=null)st.challenges++; save(); checkAwards();
+  const code=`LUBA-${encSeed(E.seed)}-${score}`, title=titleFor(score), shareText=F().shareT(score,E.list.length,pass,title,code);
+  const reason=pass?T.passed:(sw>EXAM.maxSafetyWrong?T.safeFail(sw,EXAM.maxSafetyWrong):T.totFail(wrong,EXAM.maxWrong));
+  app.innerHTML=`
+  <section class="card" style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">${T.examRes}</span>
+    <div class="row"><div class="big mono">${score} / ${E.list.length}</div><span class="verdict ${pass?"ok":"bad"}">${pass?T.PASS:T.FAIL}</span></div>
+    <p>${esc(reason)}. ${T.sum(wrong,sw)}</p>
+    <p class="titleline"><span class="eyebrow">${F().yourTitle}</span><b>${esc(title)}</b></p>
+    ${E.friend!=null?`<p class="vs">${esc(F().vs(score,E.friend))}</p>`:""}
+    ${sharePanel(shareText)}
+    <div class="dots">${E.list.map((x,j)=>`<span class="dot ${x.pick===x.correct?"r":"w"}">${j+1}</span>`).join("")}</div>
+    <div class="row"><button class="btn" id="again">${T.newExam}</button><button class="btn ghost" id="home">${T.homeBtn}</button></div>
+  </section>
+  ${wrong?`<section class="card review"><h2 style="font-size:22px">${T.review}</h2>${E.list.map((x,j)=>x.pick===x.correct?"":`
+    <div class="rv"><span class="eyebrow">${T.qn(j+1)}${x.q.safe?T.safeTag:""}</span><b>${esc(x.q.q)}</b>${figHtml(x.q.f)}
+    <span class="a" style="color:var(--bad)">${T.your}${x.pick===null?T.none:esc(optText(x.opts[x.pick]))}</span>
+    <span class="a" style="color:var(--ok)">${T.correctIs}${esc(optText(x.opts[x.correct]))}</span>
+    <p class="a">${esc(x.q.e)}</p><p class="src">${esc(x.q.s)}</p></div>`).join("")}</section>`:""}`;
+  document.getElementById("again").onclick=examIntro;
+  document.getElementById("home").onclick=home;
+  wireShare(shareText);
+  window.scrollTo(0,0);
+}
+
+function challengeIntro(){
+  app.innerHTML=`
+  <section class="card" style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">${F().challenge}</span>
+    <h2 style="font-size:26px">${F().challengeSub}</h2>
+    <label for="code" class="note">${F().codePh}</label>
+    <input id="code" class="codein" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="LUBA-XXXXX-00">
+    <p class="note" id="codeErr" hidden>${F().badCode}</p>
+    <div class="row"><button class="btn" id="go">${F().play}</button><button class="btn ghost" id="home">${T.back}</button></div>
+  </section>`;
+  const go=()=>{const c=parseCode(document.getElementById("code").value); if(!c){document.getElementById("codeErr").hidden=false;return} startExam(c.seed,c.score)};
+  document.getElementById("go").onclick=go; document.getElementById("code").onkeydown=e=>{if(e.key==="Enter")go()};
+  document.getElementById("home").onclick=home;
+}
+
+/* ---- Atlas ---- */
+function atlas(){
+  const groups={};for(const [id,s] of Object.entries(SIGNS)){(groups[s.g]=groups[s.g]||[]).push([id,s])}
+  const order=["Hoiatusmärgid","Eesõigusmärgid","Keelumärgid","Kohustusmärgid","Teavitusmärgid"];
+  app.innerHTML=`
+  <div class="hud"><button class="btn ghost" id="back" style="padding:8px 14px">${T.home}</button><span class="eyebrow">${T.atlas}</span></div>
+  <section class="card" style="display:flex;flex-direction:column;gap:12px">
+    <h2 style="font-size:26px">${T.atlasT}</h2>
+    <p class="muted">${T.atlasNote}</p>
+    ${order.map(g=>`<h3 class="grp">${groupName(g)}</h3><div class="atlas">${groups[g].map(([id,s])=>`<div class="sg">${signSvg(id)}<b>${esc(s.n)}</b><small>${esc(s.m)}</small></div>`).join("")}</div>`).join("")}
+    <div class="row"><button class="btn" id="quiz">${T.quiz}</button></div>
+  </section>`;
+  document.getElementById("back").onclick=home;
+  document.getElementById("quiz").onclick=()=>practice(Q.filter(q=>q.t==="margid"),{topic:"margid"});
+  window.scrollTo(0,0);
+}
+
+applyLang(LANG);
+home();
+syncReminder();
+</script>
+
+</body>
+</html>
