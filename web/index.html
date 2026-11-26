@@ -71,6 +71,8 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .mode b{font-family:var(--f-display);font-size:18px;display:block}
 .mode small{color:var(--muted);font-size:14px;line-height:1.35;display:block;margin-top:2px}
 .mode.primary{background:var(--accent-soft)}
+.mode span{min-width:0;overflow-wrap:anywhere}
+@media (min-width:640px){.mode.primary{grid-column:span 2}}
 .topics{display:flex;flex-direction:column;gap:6px}
 .topic{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;text-align:left;background:transparent;border:1.5px dashed var(--line);border-radius:6px;padding:10px 12px}
 .topic:hover{border-color:var(--ink);border-style:solid}
